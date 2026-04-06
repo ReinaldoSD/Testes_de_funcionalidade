@@ -1,5 +1,5 @@
 from flask import Flask, jsonify
-from banco_dados.database import cadastrar_roupa, editar_roupa
+from banco_dados.database import cadastrar_roupa, editar_roupa, excluir_roupa
 import sqlite3
 from datetime import datetime
 import os
@@ -82,6 +82,11 @@ def historico():
 def editar(roupa_id):
     editar_roupa(roupa_id, "Nova camisa", "Camisa", "Azul", "Casual", "Quente")
     return f"Roupa {roupa_id} atualizada!"
+
+@app.route('/excluir/<int:roupa_id>')
+def excluir(roupa_id):
+    excluir_roupa(roupa_id)
+    return f"Roupa {roupa_id} excluída com sucesso!"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
