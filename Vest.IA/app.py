@@ -1,5 +1,5 @@
 from flask import Flask, jsonify
-from banco_dados.database import cadastrar_roupa
+from banco_dados.database import cadastrar_roupa, editar_roupa
 import sqlite3
 from datetime import datetime
 import os
@@ -7,7 +7,6 @@ import os
 app = Flask(__name__)
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-
 project_root = current_dir if 'banco_dados' not in current_dir else os.path.dirname(current_dir)
 
 DB_FOLDER = os.path.join(project_root, 'banco_dados')
@@ -29,7 +28,7 @@ def listar():
     cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM roupas")
-    dados = cursor.fetchall()
+    dados = [dict(row) for row in cursor.fetchall()]
 
     conn.close()
 
@@ -38,7 +37,7 @@ def listar():
 # cadastrar roupa
 @app.route('/cadastrar')
 def cadastrar():
-    cadastrar_roupa("Camisa preta", "Camisa", "Preta", "Casual")
+    cadastrar_roupa("Camisa preta", "Camisa", "Preta", "Casual", "Meia-estação")
     return "Roupa cadastrada!"
 
 # usar roupa
@@ -72,27 +71,17 @@ def historico():
     cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM historico")
-    dados = cursor.fetchall()
+    dados = [dict(row) for row in cursor.fetchall()]
 
     conn.close()
 
     return jsonify(dados)
 
-# deletar roupa
-# from banco_dados.database import deletar_roupa
-# @app.route('/deletar/<int:roupa_id>')
-# def deletar(roupa_id):
-    # deletar_roupa(roupa_id)
-    # return f"Roupa {roupa_id} deletada!"
+# editar
+@app.route('/editar/<int:roupa_id>')
+def editar(roupa_id):
+    editar_roupa(roupa_id, "Nova camisa", "Camisa", "Azul", "Casual", "Quente")
+    return f"Roupa {roupa_id} atualizada!"
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
-
-#editar
-from banco_dados.database import editar_roupa
-
-#rota
-@app.route('/editar/<int:roupa_id>')
-def editar(roupa_id):
-    editar_roupa(roupa_id, "Nova camisa", "Camisa", "Azul", "Casual")
-    return f"Roupa {roupa_id} atualizada!"
