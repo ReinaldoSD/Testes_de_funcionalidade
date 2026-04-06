@@ -1,7 +1,21 @@
 import sqlite3
+import os
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+DB_FOLDER = os.path.join(project_root, 'banco_dados')
+DB_PATH = os.path.join(DB_FOLDER, 'vest.ia.db')
+
+if not os.path.exists(DB_FOLDER):
+    os.makedirs(DB_FOLDER)
+
+def get_db_connection():
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 def criar_banco():
-    conn = sqlite3.connect('database.db')
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     # tabela roupas
