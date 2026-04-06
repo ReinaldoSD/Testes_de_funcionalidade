@@ -18,7 +18,7 @@ def criar_banco():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # tabela roupas
+    # tabela roupas (agora com clima_ideal)
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS roupas (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -26,6 +26,7 @@ def criar_banco():
         tipo TEXT,
         cor TEXT,
         ocasiao TEXT,
+        clima_ideal TEXT,
         imagem TEXT,
         vezes_usada INTEGER DEFAULT 0
     )
