@@ -12,16 +12,19 @@ def conectar():
     conn.row_factory = sqlite3.Row
     return conn
 
-def cadastrar_roupa(nome, tipo, cor, ocasiao, imagem=None):
+def cadastrar_roupa(nome, tipo, cor, ocasiao, clima_ideal, imagem=None):
     conn = conectar()
     cursor = conn.cursor()
 
     cursor.execute("""
-    INSERT INTO roupas (nome, tipo, cor, ocasiao, imagem)
-    VALUES (?, ?, ?, ?, ?)
-    """, (nome, tipo, cor, ocasiao, imagem))
+    INSERT INTO roupas (nome, tipo, cor, ocasiao, clima_ideal, imagem)
+    VALUES (?, ?, ?, ?, ?, ?)
+    """, (nome, tipo, cor, ocasiao, clima_ideal, imagem))
 
     conn.commit()
     conn.close()
 
     print("Roupa cadastrada com sucesso")
+    
+def editar_roupa(roupa_id, nome, tipo, cor, ocasiao, clima_ideal):
+    pass
