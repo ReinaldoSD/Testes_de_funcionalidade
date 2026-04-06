@@ -1,4 +1,4 @@
-Projeto Guarda-Roupa Inteligente
+Projeto Guarda-Roupa Digital
 
 Como rodar:
 
