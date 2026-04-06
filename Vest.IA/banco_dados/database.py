@@ -1,7 +1,16 @@
 import sqlite3
+import os
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = current_dir if 'banco_dados' not in current_dir else os.path.dirname(current_dir)
+
+DB_FOLDER = os.path.join(project_root, 'banco_dados')
+DB_PATH = os.path.join(DB_FOLDER, 'vest.ia.db')
 
 def conectar():
-    return sqlite3.connect('database.db')
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    return conn
 
 def cadastrar_roupa(nome, tipo, cor, ocasiao, imagem=None):
     conn = conectar()
