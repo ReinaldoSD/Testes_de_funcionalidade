@@ -9,13 +9,12 @@ DB_PATH = os.path.join(DB_FOLDER, 'vest.ia.db')
 if not os.path.exists(DB_FOLDER):
     os.makedirs(DB_FOLDER)
 
-def get_db_connection():
+def get_connection():
     conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
     return conn
 
 def criar_banco():
-    conn = get_db_connection()
+    conn = get_connection()
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -31,7 +30,6 @@ def criar_banco():
     )
     ''')
 
-    # tabela histórico
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS historico (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -43,9 +41,7 @@ def criar_banco():
 
     conn.commit()
     conn.close()
-
     print("Banco criado com sucesso!")
 
-# execute
 if __name__ == "__main__":
     criar_banco()
