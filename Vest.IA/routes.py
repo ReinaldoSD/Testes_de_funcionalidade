@@ -1,4 +1,4 @@
-from flask import jsonify, request, send_from_directory
+from flask import jsonify, request, send_from_directory, render_template
 from banco_dados.database import conectar, cadastrar_roupa, editar_roupa, excluir_roupa
 from datetime import datetime
 import os
