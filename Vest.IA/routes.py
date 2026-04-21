@@ -13,7 +13,7 @@ def configure_routes(app):
 
     @app.route('/')
     def home():
-        return "Servidor Vest.IA rodando!"
+        return render_template('index.html')
 
     @app.route('/listar')
     def listar():
