@@ -93,12 +93,22 @@
                 <h2 class="text-2xl font-bold text-gray-800 mb-6">➕ Cadastrar Nova Roupa</h2>
                 
                 <div class="mb-6">
-                    <label class="block text-gray-700 font-medium mb-2">Enviar Imagem</label>
-                    <input type="file" id="imagemInput" accept="image/*" class="w-full border border-gray-300 rounded-lg p-3">
+                    <label class="block text-gray-700 font-medium mb-2">Enviar Imagem da Roupa</label>
+                    
+                    <input type="file" id="imagemInput" accept="image/*" class="hidden" onchange="atualizarNomeArquivo(this)">
+                    
+                    <div class="flex items-center gap-3">
+                        <label for="imagemInput" class="cursor-pointer bg-dark text-white px-4 py-2 rounded-lg hover:bg-primary transition flex items-center">
+                            📸 Escolher Foto
+                        </label>
+                        
+                        <span id="textoArquivo" class="text-gray-500 text-sm">Nenhuma foto selecionada</span>
+                    </div>
+
                     <div id="previewImagem" class="mt-3 hidden">
                         <img id="imgPreview" src="" alt="Preview" class="max-h-48 rounded border">
                     </div>
-                    <button onclick="uploadImagem()" class="mt-3 bg-primary text-white px-4 py-2 rounded-lg hover:bg-dark transition">📤 Enviar Imagem</button>
+                    
                 </div>
 
                 <div class="grid md:grid-cols-2 gap-4">
@@ -153,7 +163,7 @@
     </main>
 
     <footer class="bg-dark text-white text-center py-6 mt-12">
-        <p>&copy; 2025 Vest.IA - Todos os direitos reservados.</p>
+        <p>&copy; 2026 Vest.IA - Todos os direitos reservados.</p>
     </footer>
 
     <script>
@@ -242,7 +252,13 @@
                                 <p class="text-gray-600">${r.tipo} • ${r.cor}</p>
                                 <div class="flex justify-between items-center mt-3">
                                     <span class="text-sm bg-secondary text-primary px-2 py-1 rounded">👟 ${r.vezes_usada} vezes</span>
-                                    <button onclick="usarRoupa(${r.id})" class="bg-primary text-white px-3 py-1 rounded hover:bg-dark">✅ Usar</button>
+                                    <div class="flex gap-2">
+                                        <button onclick="usarRoupa(${r.id})" class="bg-primary text-white px-3 py-1 rounded hover:bg-dark transition">✅ Usar</button>
+                                        
+                                        <button onclick="excluirRoupa(${r.id})" class="bg-red-100 text-red-600 px-3 py-1 rounded hover:bg-red-600 hover:text-white transition" title="Excluir peça">
+                                            🗑️
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -278,6 +294,29 @@
         window.onload = () => {
             carregarRoupas();
         };
+
+        function atualizarNomeArquivo(input) {
+            const texto = document.getElementById('textoArquivo');
+            if (input.files && input.files.length > 0) {
+                texto.textContent = input.files[0].name;
+                texto.classList.add('text-primary', 'font-medium');
+            } else {
+                texto.textContent = 'Nenhuma foto selecionada';
+                texto.classList.remove('text-primary', 'font-medium');
+            }
+        }
+
+        function excluirRoupa(id) {
+            if (confirm("Tem certeza que deseja excluir esta peça do seu guarda-roupa?")) {
+                fetch('/excluir/' + id)
+                .then(res => res.json())
+                .then(dados => {
+                    alert(dados.mensagem || "Roupa excluída!");
+                    carregarRoupas();
+                })
+                .catch(err => console.error("Erro ao excluir:", err));
+            }
+        }
     </script>
 </body>
 </html>
