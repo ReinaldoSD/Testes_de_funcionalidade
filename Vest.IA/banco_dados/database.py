@@ -22,14 +22,21 @@ def cadastrar_roupa(nome, tipo, cor, ocasiao, clima_ideal, imagem=None):
     conn.close()
     print("Roupa cadastrada com sucesso")
 
-def editar_roupa(roupa_id, nome, tipo, cor, ocasiao, clima_ideal):
+def editar_roupa(roupa_id, nome, tipo, cor, ocasiao, clima_ideal, imagem=None):
     conn = conectar()
     cursor = conn.cursor()
-    cursor.execute("""
-    UPDATE roupas 
-    SET nome = ?, tipo = ?, cor = ?, ocasiao = ?, clima_ideal = ?
-    WHERE id = ?
-    """, (nome, tipo, cor, ocasiao, clima_ideal, roupa_id))
+    if imagem:
+        cursor.execute("""
+        UPDATE roupas 
+        SET nome = ?, tipo = ?, cor = ?, ocasiao = ?, clima_ideal = ?, imagem = ?
+        WHERE id = ?
+        """, (nome, tipo, cor, ocasiao, clima_ideal, imagem, roupa_id))
+    else:
+        cursor.execute("""
+        UPDATE roupas 
+        SET nome = ?, tipo = ?, cor = ?, ocasiao = ?, clima_ideal = ?
+        WHERE id = ?
+        """, (nome, tipo, cor, ocasiao, clima_ideal, roupa_id))
     conn.commit()
     conn.close()
     print(f"Roupa {roupa_id} atualizada com sucesso")
