@@ -1,19 +1,22 @@
-from flask import jsonify, request, send_from_directory, render_template
+
+from flask import jsonify, request
 from banco_dados.database import conectar, cadastrar_roupa, editar_roupa, excluir_roupa
 from datetime import datetime
-import os
 from werkzeug.utils import secure_filename
+import os
+import json
+from google import genai
+from google.genai import types
+import PIL.Image
+
+API_KEY=os.getenv("GEMINI_API_KEY")
+client = genai.Client(api_key=API_KEY)
 
 def configure_routes(app):
-    UPLOAD_FOLDER = app.config['UPLOAD_FOLDER']
-    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-
-    def allowed_file(filename):
-        return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
     @app.route('/')
     def home():
-        return render_template('index.html')
+        return "Servidor Vest.IA rodando!"
 
     @app.route('/listar')
     def listar():
@@ -24,65 +27,21 @@ def configure_routes(app):
         conn.close()
         return jsonify(dados)
 
-    @app.route('/upload', methods=['POST'])
-    def upload_imagem():
-        if 'imagem' not in request.files:
-            return jsonify({"erro": "Nenhum arquivo foi enviado"}), 400
-        
-        arquivo = request.files['imagem']
-        
-        if arquivo.filename == '':
-            return jsonify({"erro": "Nenhum arquivo selecionado"}), 400
-        
-        if arquivo and allowed_file(arquivo.filename):
-            nome_seguro = secure_filename(arquivo.filename)
-            nome_arquivo = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{nome_seguro}"
-            caminho_completo = os.path.join(UPLOAD_FOLDER, nome_arquivo)
-            arquivo.save(caminho_completo)
-            
-            caminho_relativo = f"imagens_roupas/{nome_arquivo}"
-            return jsonify({
-                "mensagem": "Imagem enviada com sucesso",
-                "caminho_imagem": caminho_relativo
-            }), 200
-        else:
-            return jsonify({"erro": "Tipo de arquivo não permitido. Envie apenas imagens (png, jpg, jpeg, gif)"}), 400
-
-    @app.route('/imagens_roupas/<nome_arquivo>')
-    def ver_imagem(nome_arquivo):
-        return send_from_directory(UPLOAD_FOLDER, nome_arquivo)
-
-    @app.route('/cadastrar', methods=['POST'])
+    @app.route('/cadastrar')
     def cadastrar():
-        dados = request.get_json()
-        nome = dados.get('nome')
-        tipo = dados.get('tipo')
-        cor = dados.get('cor')
-        ocasiao = dados.get('ocasiao')
-        clima_ideal = dados.get('clima_ideal')
-        caminho_imagem = dados.get('imagem')
-
-        if not all([nome, tipo, cor, ocasiao, clima_ideal]):
-            return jsonify({"erro": "Preencha todos os campos obrigatórios"}), 400
-
-        cadastrar_roupa(nome, tipo, cor, ocasiao, clima_ideal, caminho_imagem)
-        return jsonify({"mensagem": "Roupa cadastrada com sucesso"}), 201
+        cadastrar_roupa("Camisa preta", "Camisa", "Preta", "Casual", "Meia-estação")
+        return "Roupa cadastrada!"
 
     @app.route('/usar/<int:roupa_id>')
     def usar(roupa_id):
         conn = conectar()
         cursor = conn.cursor()
-        cursor.execute("SELECT id FROM roupas WHERE id = ?", (roupa_id,))
-        if cursor.fetchone() is None:
-            conn.close()
-            return jsonify({"erro": "Roupa não encontrada"}), 404
-
         cursor.execute("UPDATE roupas SET vezes_usada = vezes_usada + 1 WHERE id = ?", (roupa_id,))
         data_atual = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         cursor.execute("INSERT INTO historico (roupa_id, data_uso) VALUES (?, ?)", (roupa_id, data_atual))
         conn.commit()
         conn.close()
-        return jsonify({"mensagem": f"Roupa {roupa_id} usada em {data_atual}!"}), 200
+        return f"Roupa {roupa_id} usada em {data_atual}!"
 
     @app.route('/historico')
     def historico():
@@ -93,39 +52,80 @@ def configure_routes(app):
         conn.close()
         return jsonify(dados)
 
-    @app.route('/editar/<int:roupa_id>', methods=['PUT'])
+    @app.route('/editar/<int:roupa_id>')
     def editar(roupa_id):
-        conn = conectar()
-        cursor = conn.cursor()
-        cursor.execute("SELECT id FROM roupas WHERE id = ?", (roupa_id,))
-        if cursor.fetchone() is None:
-            conn.close()
-            return jsonify({"erro": "Roupa não encontrada"}), 404
-        conn.close()
-
-        dados = request.get_json()
-        nome = dados.get('nome')
-        tipo = dados.get('tipo')
-        cor = dados.get('cor')
-        ocasiao = dados.get('ocasiao')
-        clima_ideal = dados.get('clima_ideal')
-        caminho_imagem = dados.get('imagem')
-
-        if not all([nome, tipo, cor, ocasiao, clima_ideal]):
-            return jsonify({"erro": "Preencha todos os campos obrigatórios"}), 400
-
-        editar_roupa(roupa_id, nome, tipo, cor, ocasiao, clima_ideal, caminho_imagem)
-        return jsonify({"mensagem": f"Roupa {roupa_id} atualizada com sucesso!"}), 200
+        editar_roupa(roupa_id, "Nova camisa", "Camisa", "Azul", "Casual", "Quente")
+        return f"Roupa {roupa_id} atualizada!"
 
     @app.route('/excluir/<int:roupa_id>')
     def excluir(roupa_id):
-        conn = conectar()
-        cursor = conn.cursor()
-        cursor.execute("SELECT id FROM roupas WHERE id = ?", (roupa_id,))
-        if cursor.fetchone() is None:
-            conn.close()
-            return jsonify({"erro": "Roupa não encontrada"}), 404
-        
         excluir_roupa(roupa_id)
-        conn.close()
-        return jsonify({"mensagem": f"Roupa {roupa_id} excluída com sucesso!"}), 200
+        return f"Roupa {roupa_id} excluída com sucesso!"
+
+    
+    @app.route('/cadastrar_via_imagem', methods=['POST'])
+    
+
+
+    def cadastrar_via_imagem():
+        if 'imagem' not in request.files:
+            return jsonify({"erro": "Nenhuma imagem enviada na requisição"}), 400
+            
+        file = request.files['imagem']
+        if file.filename == '':
+            return jsonify({"erro": "Nenhum arquivo selecionado"}), 400
+
+        if file:
+            try:
+                
+                filename = secure_filename(file.filename)
+                upload_folder = os.path.join(app.root_path, 'static', 'uploads')
+                os.makedirs(upload_folder, exist_ok=True)
+                
+                filepath = os.path.join(upload_folder, filename)
+                file.save(filepath)
+
+                img_to_analyze = PIL.Image.open(filepath)
+
+                prompt = """
+                Atue como um especialista em moda. Analise esta peça de roupa e retorne um objeto JSON estrito com as seguintes chaves e valores:
+                - "nome": um nome descritivo juntando o tipo e a cor (ex: camisa_preta, saia_lilas, casaco_branco).
+                - "tipo": a categoria da peça (ex: camisa, calca, saia, casaco).
+                - "cor": a cor ou cores predominantes (ex: bege, lilas, verde, preto).
+                - "ocasiao": a melhor ocasião de uso (escolha entre: casual, profissional, flexivel, festa).
+                - "clima_ideal": o clima mais adequado (escolha entre: frio, quente, meia-estacao).
+                """
+                
+                
+                response = client.models.generate_content(
+                    model='gemini-2.5-flash', 
+                    contents=[prompt, img_to_analyze],
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                    )
+                )
+                
+                
+                dados_roupa = json.loads(response.text)
+
+                
+                caminho_banco = f"static/uploads/{filename}"
+                cadastrar_roupa(
+                    nome=dados_roupa.get('nome', 'Indefinido'),
+                    tipo=dados_roupa.get('tipo', 'Indefinido'),
+                    cor=dados_roupa.get('cor', 'Indefinida'),
+                    ocasiao=dados_roupa.get('ocasiao', 'Indefinida'),
+                    clima_ideal=dados_roupa.get('clima_ideal', 'Indefinido'),
+                    imagem=caminho_banco
+                )
+
+                return jsonify({
+                    "mensagem": "Roupa analisada pela IA e cadastrada com sucesso!",
+                    "dados_extraidos": dados_roupa,
+                    "caminho_imagem": caminho_banco
+                }), 201
+
+            except json.JSONDecodeError:
+                return jsonify({"erro": "Falha ao processar o JSON retornado pela API.", "resposta_bruta": response.text}), 500
+            except Exception as e:
+                return jsonify({"erro": f"Erro interno ao processar a imagem: {str(e)}"}), 500
