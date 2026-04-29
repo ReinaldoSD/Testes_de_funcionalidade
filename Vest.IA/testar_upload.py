@@ -4,7 +4,7 @@ import requests
 url = 'http://127.0.0.1:5000/cadastrar_via_imagem'
 
 
-caminho_da_imagem = 'teste_camisa.jpg' 
+caminho_da_imagem = r'C:\Users\Luiz\teste\Vest.IA\teste_camisa.jpg' 
 
 print(f"Enviando a imagem '{caminho_da_imagem}' para a IA analisar...")
 

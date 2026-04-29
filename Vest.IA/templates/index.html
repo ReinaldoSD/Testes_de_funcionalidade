@@ -93,7 +93,7 @@
                 <h2 class="text-2xl font-bold text-gray-800 mb-6">➕ Cadastrar Nova Roupa</h2>
                 
                 <div class="mb-6">
-                    <label class="block text-gray-700 font-medium mb-2">Enviar Imagem da Roupa</label>
+                    <label class="block text-gray-700 font-medium mb-2">Enviar Imagem da Roupa (Requerido para IA)</label>
                     
                     <input type="file" id="imagemInput" accept="image/*" class="hidden" onchange="atualizarNomeArquivo(this)">
                     
@@ -136,7 +136,18 @@
 
                 <input type="hidden" id="caminhoImagem">
 
-                <button onclick="salvarRoupa()" class="w-full mt-6 bg-primary hover:bg-dark text-white py-3 rounded-lg text-lg font-semibold transition">💾 Salvar Roupa</button>
+                <div class="flex flex-col md:flex-row gap-4 mt-6">
+                    <button onclick="salvarRoupa()" class="w-full bg-primary hover:bg-dark text-white py-3 rounded-lg text-lg font-semibold transition">
+                        💾 Salvar Manualmente
+                    </button>
+                    <button onclick="cadastrarViaIA()" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white py-3 rounded-lg text-lg font-semibold transition flex justify-center items-center gap-2 shadow-md">
+                        🤖 Cadastrar via IA
+                    </button>
+                </div>
+                
+                <div id="loadingIA" class="hidden mt-4 text-center text-indigo-600 font-medium animate-pulse">
+                    ⏳ Analisando a imagem com Inteligência Artificial, aguarde...
+                </div>
             </div>
         </section>
 
@@ -179,32 +190,28 @@
             if(tabName === 'historico') carregarHistorico();
         }
 
-        function uploadImagem() {
-            const input = document.getElementById('imagemInput');
-            if(!input.files || !input.files[0]) {
-                alert('Selecione uma imagem primeiro!');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('imagem', input.files[0]);
-
-            fetch(API_URL + '/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.caminho_imagem) {
-                    document.getElementById('caminhoImagem').value = data.caminho_imagem;
-                    document.getElementById('previewImagem').classList.remove('hidden');
-                    document.getElementById('imgPreview').src = API_URL + '/' + data.caminho_imagem;
-                    alert('Imagem enviada com sucesso!');
-                } else {
-                    alert('Erro: ' + (data.erro || 'Desconhecido'));
+        // Função de pré-visualização alterada para ler a imagem localmente antes do envio
+        function atualizarNomeArquivo(input) {
+            const texto = document.getElementById('textoArquivo');
+            const previewContainer = document.getElementById('previewImagem');
+            const imgPreview = document.getElementById('imgPreview');
+            
+            if (input.files && input.files.length > 0) {
+                texto.textContent = input.files[0].name;
+                texto.classList.add('text-primary', 'font-medium');
+                
+                // Exibir a pré-visualização
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imgPreview.src = e.target.result;
+                    previewContainer.classList.remove('hidden');
                 }
-            })
-            .catch(err => alert('Erro ao enviar'));
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                texto.textContent = 'Nenhuma foto selecionada';
+                texto.classList.remove('text-primary', 'font-medium');
+                previewContainer.classList.add('hidden');
+            }
         }
 
         function salvarRoupa() {
@@ -218,7 +225,7 @@
             };
 
             if(!dados.nome || !dados.tipo) {
-                alert('Preencha nome e tipo!');
+                alert('Preencha nome e tipo para o cadastro manual!');
                 return;
             }
 
@@ -230,9 +237,54 @@
             .then(res => res.json())
             .then(() => {
                 alert('Roupa cadastrada!');
-                document.querySelectorAll('input').forEach(i => i.value = '');
-                document.getElementById('previewImagem').classList.add('hidden');
+                limparFormulario();
+            })
+            .catch(err => alert('Aviso: Verifique se o backend está configurado para receber POST manual.'));
+        }
+
+        function cadastrarViaIA() {
+            const input = document.getElementById('imagemInput');
+            if(!input.files || !input.files[0]) {
+                alert('Por favor, selecione uma imagem da roupa para a IA analisar!');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('imagem', input.files[0]);
+
+            // Mostrar mensagem de carregamento
+            document.getElementById('loadingIA').classList.remove('hidden');
+
+            fetch(API_URL + '/cadastrar_via_imagem', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('loadingIA').classList.add('hidden');
+                
+                if(data.mensagem) {
+                    alert('✨ ' + data.mensagem + '\n\nPeça identificada: ' + data.dados_extraidos.nome);
+                    limparFormulario();
+                    showTab('listar'); // Redireciona para a lista
+                } else {
+                    alert('Erro: ' + (data.erro || 'Erro desconhecido.'));
+                }
+            })
+            .catch(err => {
+                document.getElementById('loadingIA').classList.add('hidden');
+                alert('Erro na comunicação com o servidor ao processar a IA.');
+                console.error(err);
             });
+        }
+
+        function limparFormulario() {
+            document.querySelectorAll('input[type="text"]').forEach(i => i.value = '');
+            document.getElementById('imagemInput').value = '';
+            document.getElementById('textoArquivo').textContent = 'Nenhuma foto selecionada';
+            document.getElementById('textoArquivo').classList.remove('text-primary', 'font-medium');
+            document.getElementById('previewImagem').classList.add('hidden');
+            document.getElementById('caminhoImagem').value = '';
         }
 
         function carregarRoupas() {
@@ -244,14 +296,15 @@
                 roupas.forEach(r => {
                     container.innerHTML += `
                         <div class="bg-white rounded-xl shadow overflow-hidden card-hover">
-                            <div class="h-48 bg-gray-100 overflow-hidden">
-                                ${r.imagem ? `<img src="${API_URL}/${r.imagem}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-6xl text-gray-300">👕</div>`}
+                            <div class="h-48 bg-gray-100 overflow-hidden flex justify-center items-center">
+                                ${r.imagem ? `<img src="${API_URL}/${r.imagem}" class="w-full h-full object-cover">` : `<div class="text-6xl text-gray-300">👕</div>`}
                             </div>
                             <div class="p-4">
-                                <h3 class="font-bold text-lg text-gray-800">${r.nome}</h3>
-                                <p class="text-gray-600">${r.tipo} • ${r.cor}</p>
+                                <h3 class="font-bold text-lg text-gray-800 capitalize">${r.nome}</h3>
+                                <p class="text-gray-600 capitalize">${r.tipo} • ${r.cor}</p>
+                                <p class="text-xs text-gray-500 mt-1 capitalize">Ocasião: ${r.ocasiao} | Clima: ${r.clima_ideal}</p>
                                 <div class="flex justify-between items-center mt-3">
-                                    <span class="text-sm bg-secondary text-primary px-2 py-1 rounded">👟 ${r.vezes_usada} vezes</span>
+                                    <span class="text-sm bg-secondary text-primary px-2 py-1 rounded">👟 ${r.vezes_usada || 0} vezes</span>
                                     <div class="flex gap-2">
                                         <button onclick="usarRoupa(${r.id})" class="bg-primary text-white px-3 py-1 rounded hover:bg-dark transition">✅ Usar</button>
                                         
@@ -269,7 +322,7 @@
 
         function usarRoupa(id) {
             fetch(API_URL + '/usar/' + id)
-            .then(res => res.json())
+            .then(res => res.text()) // Mudado para text() pois a rota atual retorna string, não JSON
             .then(() => {
                 alert('Marcada como usada!');
                 carregarRoupas();
@@ -295,23 +348,12 @@
             carregarRoupas();
         };
 
-        function atualizarNomeArquivo(input) {
-            const texto = document.getElementById('textoArquivo');
-            if (input.files && input.files.length > 0) {
-                texto.textContent = input.files[0].name;
-                texto.classList.add('text-primary', 'font-medium');
-            } else {
-                texto.textContent = 'Nenhuma foto selecionada';
-                texto.classList.remove('text-primary', 'font-medium');
-            }
-        }
-
         function excluirRoupa(id) {
             if (confirm("Tem certeza que deseja excluir esta peça do seu guarda-roupa?")) {
                 fetch('/excluir/' + id)
-                .then(res => res.json())
-                .then(dados => {
-                    alert(dados.mensagem || "Roupa excluída!");
+                .then(res => res.text()) // Mudado para text() pois a rota retorna string
+                .then(mensagem => {
+                    alert(mensagem || "Roupa excluída!");
                     carregarRoupas();
                 })
                 .catch(err => console.error("Erro ao excluir:", err));

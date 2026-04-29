@@ -1,5 +1,5 @@
 
-from flask import jsonify, request
+from flask import jsonify, request, render_template
 from banco_dados.database import conectar, cadastrar_roupa, editar_roupa, excluir_roupa
 from datetime import datetime
 from werkzeug.utils import secure_filename
@@ -16,7 +16,7 @@ def configure_routes(app):
 
     @app.route('/')
     def home():
-        return "Servidor Vest.IA rodando!"
+        return render_template("index.html")
 
     @app.route('/listar')
     def listar():
