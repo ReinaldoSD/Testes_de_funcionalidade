@@ -9,12 +9,8 @@ DB_PATH = os.path.join(DB_FOLDER, 'vest.ia.db')
 if not os.path.exists(DB_FOLDER):
     os.makedirs(DB_FOLDER)
 
-def get_connection():
-    conn = sqlite3.connect(DB_PATH)
-    return conn
-
 def criar_banco():
-    conn = get_connection()
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -25,8 +21,16 @@ def criar_banco():
         cor TEXT,
         ocasiao TEXT,
         clima_ideal TEXT,
-        imagem TEXT,
         vezes_usada INTEGER DEFAULT 0
+    )
+    ''')
+
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS fotos_roupas (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        roupa_id INTEGER,
+        caminho TEXT,
+        FOREIGN KEY (roupa_id) REFERENCES roupas(id) ON DELETE CASCADE
     )
     ''')
 
@@ -35,7 +39,7 @@ def criar_banco():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         roupa_id INTEGER,
         data_uso TEXT,
-        FOREIGN KEY (roupa_id) REFERENCES roupas(id)
+        FOREIGN KEY (roupa_id) REFERENCES roupas(id) ON DELETE CASCADE
     )
     ''')
 
