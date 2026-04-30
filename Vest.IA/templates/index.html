@@ -48,10 +48,10 @@
     <nav class="bg-white shadow-md sticky top-0 z-50">
         <div class="container mx-auto px-4">
             <div class="flex overflow-x-auto space-x-2 py-3 justify-center md:justify-start">
-                <button onclick="showTab('home')" class="tab-btn tab-active px-6 py-3 text-gray-700 whitespace-nowrap">🏠 Início</button>
-                <button onclick="showTab('cadastrar')" class="tab-btn px-6 py-3 text-gray-700 whitespace-nowrap">➕ Cadastrar</button>
-                <button onclick="showTab('listar')" class="tab-btn px-6 py-3 text-gray-700 whitespace-nowrap">📋 Minhas Roupas</button>
-                <button onclick="showTab('historico')" class="tab-btn px-6 py-3 text-gray-700 whitespace-nowrap">📅 Histórico</button>
+                <button onclick="mostrarAba('home')" class="tab-btn tab-active px-6 py-3 text-gray-700 whitespace-nowrap">🏠 Início</button>
+                <button onclick="mostrarAba('cadastrar')" class="tab-btn px-6 py-3 text-gray-700 whitespace-nowrap">➕ Cadastrar</button>
+                <button onclick="mostrarAba('listar')" class="tab-btn px-6 py-3 text-gray-700 whitespace-nowrap">📋 Minhas Roupas</button>
+                <button onclick="mostrarAba('historico')" class="tab-btn px-6 py-3 text-gray-700 whitespace-nowrap">📅 Histórico</button>
             </div>
         </div>
     </nav>
@@ -88,82 +88,80 @@
             </div>
         </section>
 
-        <section id="cadastrar" class="tab-content hidden">
-            <div class="max-w-3xl mx-auto bg-white rounded-xl shadow p-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">➕ Cadastrar Nova Roupa</h2>
-                
-                <div class="mb-6">
-                    <label class="block text-gray-700 font-medium mb-2">Enviar Imagem da Roupa (Requerido para IA)</label>
-                    
-                    <input type="file" id="imagemInput" accept="image/*" class="hidden" onchange="atualizarNomeArquivo(this)">
-                    
-                    <div class="flex items-center gap-3">
-                        <label for="imagemInput" class="cursor-pointer bg-dark text-white px-4 py-2 rounded-lg hover:bg-primary transition flex items-center">
-                            📸 Escolher Foto
+        <div id="cadastrar" class="hidden animate-fade-in max-w-2xl mx-auto mt-8">
+                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+                    <h2 class="text-2xl font-bold text-dark mb-6">Adicionar Nova Peça</h2>
+
+                    <div class="mb-8 p-6 bg-secondary/30 rounded-xl border border-secondary border-dashed">
+                        <h3 class="text-lg font-semibold text-dark mb-4">Passo 1: Análise Inteligente (IA)</h3>
+                        
+                        <label class="flex flex-col items-center justify-center w-full h-32 border-2 border-primary border-dashed rounded-xl cursor-pointer bg-white hover:bg-slate-50 transition-colors">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <span class="text-3xl mb-2">📸</span>
+                                <p class="mb-2 text-sm text-slate-500"><span class="font-semibold text-primary">Clique para selecionar</span> várias fotos</p>
+                                <p id="textoArquivo" class="text-xs text-slate-400">Nenhuma foto selecionada</p>
+                            </div>
+                            <input type="file" id="imagemInput" accept="image/*" multiple class="hidden" onchange="atualizarNomeArquivo(this)">
                         </label>
                         
-                        <span id="textoArquivo" class="text-gray-500 text-sm">Nenhuma foto selecionada</span>
+                        <button onclick="cadastrarViaIA()" class="w-full bg-primary hover:bg-blue-700 text-white py-3 rounded-xl font-semibold mt-4 transition-colors shadow-md">
+                            ✨ Analisar Fotos com IA
+                        </button>
+                        
+                        <div id="loadingIA" class="hidden mt-4 text-center text-primary font-medium flex items-center justify-center gap-2">
+                            <svg class="animate-spin h-5 w-5 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            A IA está analisando os detalhes, aguarde...
+                        </div>
                     </div>
 
-                    <div id="previewImagem" class="mt-3 hidden">
-                        <img id="imgPreview" src="" alt="Preview" class="max-h-48 rounded border">
-                    </div>
-                    
-                </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-dark mb-4">Passo 2: Revise e Guarde no Armário</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Nome da Peça</label>
+                                <input type="text" id="nome" class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none" placeholder="Ex: Camisa social listrada">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Tipo</label>
+                                <input type="text" id="tipo" class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none" placeholder="Ex: Camisa, Calça, Vestido">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Cor</label>
+                                <input type="text" id="cor" class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none" placeholder="Ex: Azul marinho">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Ocasião</label>
+                                <input type="text" id="ocasiao" class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none" placeholder="Ex: Trabalho, Casual, Festa">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Clima Ideal</label>
+                                <input type="text" id="clima" class="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none" placeholder="Ex: Quente, Frio, Meia-estação">
+                            </div>
+                        </div>
 
-                <div class="grid md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">Nome</label>
-                        <input type="text" id="nome" class="w-full border border-gray-300 rounded-lg p-3" placeholder="Ex: Camisa Azul">
+                        <input type="hidden" id="caminhosFotosAcumulados">
+                        
+                        <button onclick="finalizarCadastro()" class="w-full bg-dark hover:bg-slate-800 text-white py-3 rounded-xl font-semibold mt-8 transition-colors shadow-md">
+                            💾 Confirmar e Guardar Peça
+                        </button>
                     </div>
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">Tipo</label>
-                        <input type="text" id="tipo" class="w-full border border-gray-300 rounded-lg p-3" placeholder="Ex: Camisa, Calça, Vestido">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">Cor</label>
-                        <input type="text" id="cor" class="w-full border border-gray-300 rounded-lg p-3" placeholder="Ex: Azul, Branco, Preto">
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-2">Ocasião</label>
-                        <input type="text" id="ocasiao" class="w-full border border-gray-300 rounded-lg p-3" placeholder="Ex: Casual, Trabalho, Festa">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-gray-700 font-medium mb-2">Clima Ideal</label>
-                        <input type="text" id="clima" class="w-full border border-gray-300 rounded-lg p-3" placeholder="Ex: Quente, Frio, Meia-estação">
-                    </div>
-                </div>
-
-                <input type="hidden" id="caminhoImagem">
-
-                <div class="flex flex-col md:flex-row gap-4 mt-6">
-                    <button onclick="salvarRoupa()" class="w-full bg-primary hover:bg-dark text-white py-3 rounded-lg text-lg font-semibold transition">
-                        💾 Salvar Manualmente
-                    </button>
-                    <button onclick="cadastrarViaIA()" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white py-3 rounded-lg text-lg font-semibold transition flex justify-center items-center gap-2 shadow-md">
-                        🤖 Cadastrar via IA
-                    </button>
-                </div>
-                
-                <div id="loadingIA" class="hidden mt-4 text-center text-indigo-600 font-medium animate-pulse">
-                    ⏳ Analisando a imagem com Inteligência Artificial, aguarde...
                 </div>
             </div>
         </section>
 
         <section id="listar" class="tab-content hidden">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">📋 Minhas Roupas</h2>
-            <div id="listaRoupas" class="grid md:grid-cols-3 lg:grid-cols-4 gap-6"></div>
+            <div id="listaRoupas" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
         </section>
 
         <section id="historico" class="tab-content hidden">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">📅 Histórico de Uso</h2>
             <div class="bg-white rounded-xl shadow overflow-hidden">
                 <table class="w-full">
-                    <thead class="bg-primary text-white">
-                        <tr>
-                            <th class="px-6 py-3 text-left">ID</th>
-                            <th class="px-6 py-3 text-left">Data e Hora</th>
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
+                            <th class="px-6 py-3 text-left">Peça</th> <th class="px-6 py-3 text-left">Data de Uso</th>
                         </tr>
                     </thead>
                     <tbody id="tabelaHistorico"></tbody>
@@ -180,17 +178,37 @@
     <script>
         const API_URL = window.location.origin;
 
-        function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('tab-active'));
-            document.getElementById(tabName).classList.remove('hidden');
-            event.target.classList.add('tab-active');
+        function mostrarAba(idDaAba) {
+            const abas = ['home', 'listar', 'cadastrar', 'historico'];
 
-            if(tabName === 'listar') carregarRoupas();
-            if(tabName === 'historico') carregarHistorico();
-        }
+            abas.forEach(id => {
+                const elemento = document.getElementById(id);
+                if (elemento) {
+                    elemento.classList.add('hidden');
+                }
+            });
 
-        // Função de pré-visualização alterada para ler a imagem localmente antes do envio
+            const abaAlvo = document.getElementById(idDaAba);
+            if (abaAlvo) {
+                abaAlvo.classList.remove('hidden');
+            }
+
+            const botoes = document.querySelectorAll('nav button');
+            botoes.forEach(btn => {
+                btn.classList.remove('tab-active');
+                
+                const onclickTexto = btn.getAttribute('onclick');
+                if (onclickTexto && onclickTexto.includes(idDaAba)) {
+                    btn.classList.add('tab-active');
+                }
+            });
+
+            if (idDaAba === 'listar' && typeof carregarRoupas === 'function') carregarRoupas();
+            if (idDaAba === 'historico' && typeof carregarHistorico === 'function') carregarHistorico();
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
         function atualizarNomeArquivo(input) {
             const texto = document.getElementById('textoArquivo');
             const previewContainer = document.getElementById('previewImagem');
@@ -200,7 +218,6 @@
                 texto.textContent = input.files[0].name;
                 texto.classList.add('text-primary', 'font-medium');
                 
-                // Exibir a pré-visualização
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     imgPreview.src = e.target.result;
@@ -244,37 +261,87 @@
 
         function cadastrarViaIA() {
             const input = document.getElementById('imagemInput');
-            if(!input.files || !input.files[0]) {
-                alert('Por favor, selecione uma imagem da roupa para a IA analisar!');
+            const btnIA = document.querySelector("button[onclick='cadastrarViaIA()']");
+            const loading = document.getElementById('loadingIA');
+            
+            if (input.files.length === 0) {
+                mostrarNotificacao("Selecione fotos primeiro!", "erro");
                 return;
             }
 
+            btnIA.disabled = true;
+            btnIA.classList.add('opacity-50', 'cursor-not-allowed');
+            loading.classList.remove('hidden');
+
             const formData = new FormData();
-            formData.append('imagem', input.files[0]);
+            for (let i = 0; i < input.files.length; i++) {
+                formData.append('imagem', input.files[i]);
+            }
 
-            // Mostrar mensagem de carregamento
-            document.getElementById('loadingIA').classList.remove('hidden');
-
-            fetch(API_URL + '/cadastrar_via_imagem', {
-                method: 'POST',
-                body: formData
+            fetch('/cadastrar_via_imagem', { method: 'POST', body: formData })
+            .then(res => {
+                if (!res.ok) throw new Error("Erro na análise da IA");
+                return res.json();
             })
-            .then(res => res.json())
             .then(data => {
-                document.getElementById('loadingIA').classList.add('hidden');
-                
-                if(data.mensagem) {
-                    alert('✨ ' + data.mensagem + '\n\nPeça identificada: ' + data.dados_extraidos.nome);
-                    limparFormulario();
-                    showTab('listar'); // Redireciona para a lista
-                } else {
-                    alert('Erro: ' + (data.erro || 'Erro desconhecido.'));
+                if (data.dados) {
+                    document.getElementById('nome').value = data.dados.nome;
+                    document.getElementById('tipo').value = data.dados.tipo;
+                    document.getElementById('cor').value = data.dados.cor;
+                    document.getElementById('ocasiao').value = data.dados.ocasiao;
+                    document.getElementById('clima').value = data.dados.clima_ideal;
+                    
+                    document.getElementById('caminhosFotosAcumulados').value = JSON.stringify(data.fotos_base64);
+                    mostrarNotificacao("IA concluiu a análise!", "sucesso");
                 }
             })
             .catch(err => {
-                document.getElementById('loadingIA').classList.add('hidden');
-                alert('Erro na comunicação com o servidor ao processar a IA.');
+                mostrarNotificacao("A IA demorou a responder ou houve um erro.", "erro");
                 console.error(err);
+            })
+            .finally(() => {
+                btnIA.disabled = false;
+                btnIA.classList.remove('opacity-50', 'cursor-not-allowed');
+                loading.classList.add('hidden');
+            });
+        }
+
+        function finalizarCadastro() {
+            const inputNome = document.getElementById('nome').value;
+            const inputTipo = document.getElementById('tipo').value;
+            const btnSalvar = document.querySelector("button[onclick='finalizarCadastro()']");
+
+            if (!inputNome.trim() || !inputTipo.trim()) {
+                mostrarNotificacao("Nome e Tipo são obrigatórios.", "erro");
+                return; 
+            }
+
+            btnSalvar.disabled = true;
+            btnSalvar.textContent = "Guardando...";
+
+            const dados = {
+                nome: inputNome,
+                tipo: inputTipo,
+                cor: document.getElementById('cor').value,
+                ocasiao: document.getElementById('ocasiao').value,
+                clima: document.getElementById('clima').value,
+                fotos_base64: JSON.parse(document.getElementById('caminhosFotosAcumulados').value || "[]")
+            };
+
+            fetch('/salvar_final', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dados)
+            })
+            .then(res => res.json())
+            .then(data => {
+                mostrarNotificacao(data.mensagem, "sucesso");
+                setTimeout(() => location.reload(), 1500);
+            })
+            .catch(() => {
+                mostrarNotificacao("Erro ao salvar a peça.", "erro");
+                btnSalvar.disabled = false;
+                btnSalvar.textContent = "💾 Confirmar e Guardar Peça";
             });
         }
 
@@ -287,58 +354,127 @@
             document.getElementById('caminhoImagem').value = '';
         }
 
+        function gerarHTMLImagem(roupa) {
+            const fotos = roupa.fotos;
+            
+            if (!fotos || fotos.length === 0) {
+                return `<div class="w-full h-48 bg-slate-200 flex items-center justify-center text-gray-400">Sem foto</div>`;
+            }
+            
+            if (fotos.length === 1) {
+                return `<img src="/${fotos[0]}" alt="${roupa.nome}" class="w-full h-48 object-cover">`;
+            }
+
+            const fotosSeguras = JSON.stringify(fotos).replace(/"/g, '&quot;');
+            
+            return `
+            <div class="relative w-full h-48 group" id="carrossel-${roupa.id}" data-fotos="${fotosSeguras}" data-index="0">
+                <img id="img-${roupa.id}" src="/${fotos[0]}" alt="${roupa.nome}" class="w-full h-48 object-cover transition-all duration-300">
+
+                <button onclick="mudarFotoCarrossel(event, ${roupa.id}, -1)" 
+                        class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+
+                <button onclick="mudarFotoCarrossel(event, ${roupa.id}, 1)" 
+                        class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm z-10">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+
+                <div class="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1.5 z-10">
+                    ${fotos.map((_, i) => `
+                        <div id="dot-${roupa.id}-${i}" class="w-2 h-2 rounded-full transition-colors ${i === 0 ? 'bg-white shadow' : 'bg-white/40'}"></div>
+                    `).join('')}
+                </div>
+            </div>
+            `;
+        }
+
+        function mudarFotoCarrossel(event, roupaId, direcao) {
+            event.stopPropagation();
+
+            const container = document.getElementById(`carrossel-${roupaId}`);
+            const imgElement = document.getElementById(`img-${roupaId}`);
+            
+            const fotos = JSON.parse(container.getAttribute('data-fotos'));
+            let indexAtual = parseInt(container.getAttribute('data-index'));
+
+            let novoIndex = (indexAtual + direcao + fotos.length) % fotos.length;
+
+            container.setAttribute('data-index', novoIndex);
+            
+            imgElement.src = `/${fotos[novoIndex]}`;
+
+            fotos.forEach((_, i) => {
+                const dot = document.getElementById(`dot-${roupaId}-${i}`);
+                if (dot) {
+                    dot.className = `w-2 h-2 rounded-full transition-colors ${i === novoIndex ? 'bg-white shadow' : 'bg-white/40'}`;
+                }
+            });
+        }
+
         function carregarRoupas() {
-            fetch(API_URL + '/listar')
+            fetch('/listar')
             .then(res => res.json())
             .then(roupas => {
-                const container = document.getElementById('listaRoupas');
+                const container = document.getElementById('listaRoupas'); 
                 container.innerHTML = '';
-                roupas.forEach(r => {
+
+                roupas.forEach(roupa => {
                     container.innerHTML += `
-                        <div class="bg-white rounded-xl shadow overflow-hidden card-hover">
-                            <div class="h-48 bg-gray-100 overflow-hidden flex justify-center items-center">
-                                ${r.imagem ? `<img src="${API_URL}/${r.imagem}" class="w-full h-full object-cover">` : `<div class="text-6xl text-gray-300">👕</div>`}
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden card-hover">
+                        
+                        <div class="h-48 overflow-hidden bg-slate-200">
+                            ${gerarHTMLImagem(roupa)}
+                        </div>
+                        
+                        <div class="p-4">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-bold text-gray-800 leading-tight">${roupa.nome}</h3>
+                                <span class="text-xs font-semibold px-2 py-1 bg-secondary text-primary rounded-lg uppercase">
+                                    ${roupa.tipo}
+                                </span>
                             </div>
-                            <div class="p-4">
-                                <h3 class="font-bold text-lg text-gray-800 capitalize">${r.nome}</h3>
-                                <p class="text-gray-600 capitalize">${r.tipo} • ${r.cor}</p>
-                                <p class="text-xs text-gray-500 mt-1 capitalize">Ocasião: ${r.ocasiao} | Clima: ${r.clima_ideal}</p>
-                                <div class="flex justify-between items-center mt-3">
-                                    <span class="text-sm bg-secondary text-primary px-2 py-1 rounded">👟 ${r.vezes_usada || 0} vezes</span>
-                                    <div class="flex gap-2">
-                                        <button onclick="usarRoupa(${r.id})" class="bg-primary text-white px-3 py-1 rounded hover:bg-dark transition">✅ Usar</button>
-                                        
-                                        <button onclick="excluirRoupa(${r.id})" class="bg-red-100 text-red-600 px-3 py-1 rounded hover:bg-red-600 hover:text-white transition" title="Excluir peça">
-                                            🗑️
-                                        </button>
-                                    </div>
-                                </div>
+                            
+                            <p class="text-sm text-gray-500 mb-4">
+                                🎨 ${roupa.cor} • 📍 ${roupa.ocasiao}
+                            </p>
+
+                            <div class="flex gap-2 border-t pt-4">
+                                <button onclick="usarRoupa(${roupa.id})" class="flex-1 text-sm font-medium py-2 bg-primary text-white rounded-xl hover:bg-dark transition-colors">
+                                    Usar
+                                </button>
+                                <button onclick="excluirRoupa(${roupa.id})" class="p-2 text-red-500 hover:bg-red-50 rounded-xl transition-colors">
+                                    🗑️
+                                </button>
                             </div>
                         </div>
-                    `;
+                    </div>`;
                 });
             });
         }
 
         function usarRoupa(id) {
             fetch(API_URL + '/usar/' + id)
-            .then(res => res.text()) // Mudado para text() pois a rota atual retorna string, não JSON
+            .then(res => res.text())
             .then(() => {
-                alert('Marcada como usada!');
+                mostrarNotificacao("Peça marcada como usada!", "sucesso");
                 carregarRoupas();
             });
         }
 
         function carregarHistorico() {
-            fetch(API_URL + '/historico')
+            fetch('/historico')
             .then(res => res.json())
             .then(dados => {
                 const tbody = document.getElementById('tabelaHistorico');
                 tbody.innerHTML = '';
+                
                 dados.forEach(h => {
-                    tbody.innerHTML += `<tr class="border-b">
-                        <td class="px-6 py-3">${h.roupa_id}</td>
-                        <td class="px-6 py-3">${h.data_uso}</td>
+                    tbody.innerHTML += `
+                    <tr class="border-b hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-3 font-medium text-gray-800">${h.nome}</td>
+                        <td class="px-6 py-3 text-gray-600">${h.data_uso}</td>
                     </tr>`;
                 });
             });
@@ -348,17 +484,88 @@
             carregarRoupas();
         };
 
+        let roupaParaExcluirId = null;
+
         function excluirRoupa(id) {
-            if (confirm("Tem certeza que deseja excluir esta peça do seu guarda-roupa?")) {
-                fetch('/excluir/' + id)
-                .then(res => res.text()) // Mudado para text() pois a rota retorna string
-                .then(mensagem => {
-                    alert(mensagem || "Roupa excluída!");
-                    carregarRoupas();
-                })
-                .catch(err => console.error("Erro ao excluir:", err));
-            }
+            roupaParaExcluirId = id;
+            const modal = document.getElementById('modal-confirmacao');
+            modal.classList.remove('hidden');
+        }
+
+        function fecharModalExclusao() {
+            roupaParaExcluirId = null;
+            const modal = document.getElementById('modal-confirmacao');
+            modal.classList.add('hidden');
+        }
+
+        function confirmarExclusao() {
+            if (!roupaParaExcluirId) return; 
+
+            const modal = document.getElementById('modal-confirmacao');
+            modal.classList.add('hidden');
+
+            fetch('/excluir/' + roupaParaExcluirId)
+            .then(res => res.text()) 
+            .then(mensagem => {
+                mostrarNotificacao(mensagem || "Roupa excluída com sucesso!", "sucesso");
+                carregarRoupas();
+                
+                roupaParaExcluirId = null; 
+            })
+            .catch(err => {
+                console.error("Erro ao excluir:", err);
+                mostrarNotificacao("Erro ao tentar excluir a peça.", "erro");
+                
+                roupaParaExcluirId = null; 
+            });
+        }
+
+        function mostrarNotificacao(mensagem, tipo = 'sucesso') {
+            const container = document.getElementById('notificacao-container');
+            const notif = document.createElement('div');
+            
+            let corFundo = tipo === 'sucesso' ? 'bg-green-500' : 
+                           tipo === 'erro' ? 'bg-red-500' : 'bg-primary';
+            let icone = tipo === 'sucesso' ? '✅' : 
+                        tipo === 'erro' ? '❌' : 'ℹ️';
+
+            notif.className = `${corFundo} text-white px-6 py-4 rounded-xl shadow-lg flex items-center gap-3 transform transition-all duration-300 translate-x-full opacity-0 pointer-events-auto`;
+            notif.innerHTML = `<span class="text-xl">${icone}</span> <span class="font-medium">${mensagem}</span>`;
+            
+            container.appendChild(notif);
+
+            setTimeout(() => {
+                notif.classList.remove('translate-x-full', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                notif.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => notif.remove(), 300);
+            }, 3500);
         }
     </script>
-</body>
+    <div id="notificacao-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 pointer-events-none"></div>
+    <div id="modal-confirmacao" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl p-6 w-11/12 max-w-md shadow-2xl transform transition-all">
+            
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
+                    <span class="text-3xl">🗑️</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">Excluir Peça</h3>
+                <p class="text-gray-500 mb-6">Tem certeza que deseja excluir esta peça do seu guarda-roupa? Esta ação não pode ser desfeita.</p>
+            </div>
+            
+            <div class="flex gap-3 justify-center">
+                <button onclick="fecharModalExclusao()" class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-xl font-medium transition-colors w-full">
+                    Cancelar
+                </button>
+                <button onclick="confirmarExclusao()" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-colors w-full shadow-lg shadow-red-200">
+                    Sim, Excluir
+                </button>
+            </div>
+            
+        </div>
+    </div>
+    </body>
 </html>
