@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Vest.IA</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        poppins: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="font-poppins min-h-screen overflow-hidden relative bg-[#0f0720]">
+
+    <!-- PARTE DO FUNDO (Efeitos idênticos ao Login) -->
+    <div class="absolute inset-0 overflow-hidden">
+        <div class="absolute w-96 h-96 bg-purple-600 opacity-20 rounded-full blur-3xl top-[-100px] left-[-100px] animate-pulse"></div>
+        <div class="absolute w-96 h-96 bg-fuchsia-500 opacity-20 rounded-full blur-3xl bottom-[-100px] right-[-100px] animate-pulse"></div>
+    </div>
+
+    <!-- PARTE DO CADASTRO -->
+    <div class="relative z-10 min-h-screen flex items-center justify-center px-4">
+
+        <!-- CARD COMPACTO -->
+        <div class="w-full max-w-[360px] backdrop-blur-xl bg-white/10 border border-white/20 rounded-[2rem] shadow-2xl p-6 text-white">
+
+            <!-- SEÇÃO DO TÍTULO/LOGO -->
+            <div class="text-center mb-6">
+                <img
+                    src="/static/logo.png"
+                    alt="Vest.IA"
+                    class="w-32 mx-auto drop-shadow-2xl brightness-110"
+                >
+                <h2 class="text-xl font-semibold mt-3 text-white">
+                    Criar Conta
+                </h2>
+            </div>
+
+            <!-- FORMULÁRIO -->
+            <form action="/registrar" method="POST" class="space-y-3.5">
+
+                <div>
+                    <label class="block mb-1 text-xs text-blue-100 ml-1">
+                        Nome
+                    </label>
+                    <input
+                        type="text"
+                        name="nome"
+                        placeholder="Seu nome completo"
+                        required
+                        class="w-full px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 placeholder-blue-100/30 text-white focus:outline-none focus:ring-2 focus:ring-fuchsia-400 text-sm"
+                    >
+                </div>
+
+                <div>
+                    <label class="block mb-1 text-xs text-blue-100 ml-1">
+                        E-mail
+                    </label>
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Digite seu e-mail"
+                        required
+                        class="w-full px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 placeholder-blue-100/30 text-white focus:outline-none focus:ring-2 focus:ring-fuchsia-400 text-sm"
+                    >
+                </div>
+
+                <div>
+                    <label class="block mb-1 text-xs text-blue-100 ml-1">
+                        Senha
+                    </label>
+                    <input
+                        type="password"
+                        name="senha"
+                        placeholder="Crie uma senha"
+                        required
+                        class="w-full px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 placeholder-blue-100/30 text-white focus:outline-none focus:ring-2 focus:ring-fuchsia-400 text-sm"
+                    >
+                </div>
+
+                <button
+                    type="submit"
+                    class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:scale-[1.02] active:scale-95 transition duration-300 text-white py-3 rounded-xl font-semibold shadow-lg text-sm mt-2"
+                >
+                    Criar Conta
+                </button>
+
+            </form>
+
+            <!-- LINK PARA VOLTAR AO LOGIN -->
+            <div class="mt-6 text-center text-xs text-blue-100">
+                Já possui conta?
+                <a
+                    href="/"
+                    class="font-semibold text-fuchsia-300 hover:text-fuchsia-200 transition"
+                >
+                    Fazer login
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

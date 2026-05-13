@@ -42,6 +42,14 @@ def criar_banco():
         FOREIGN KEY (roupa_id) REFERENCES roupas(id) ON DELETE CASCADE
     )
     ''')
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS usuarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        senha TEXT NOT NULL
+    )
+    ''')
 
     conn.commit()
     conn.close()
@@ -49,3 +57,4 @@ def criar_banco():
 
 if __name__ == "__main__":
     criar_banco()
+    

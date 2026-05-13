@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vest.IA</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563EB',
+                        dark: '#0F172A',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        poppins: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-light font-poppins">
+
+    <div class="flex min-h-screen">
+
+        <!-- SIDEBAR -->
+        <aside class="w-64 bg-[#140a28] text-white p-6 fixed h-full border-r border-white/10 shadow-2xl backdrop-blur-xl">
+
+            <div class="flex items-center gap-3 mb-10 px-2">
+    <img src="/static/logosemonome.png" alt="Vest.IA" class="w-10 h-10 object-contain">
+    
+    <h1 class="text-2xl font-bold text-white">
+        Vest.IA
+    </h1>
+</div>
+
+            <nav class="space-y-3">
+
+                <a href="/dashboard"
+                   class="block py-3 px-4 rounded-xl hover:bg-blue-600 transition">
+                    🏠 Dashboard
+                </a>
+
+                <a href="/cadastrar"
+                   class="block py-3 px-4 rounded-xl hover:bg-blue-600 transition">
+                    ➕ Cadastrar
+                </a>
+
+                <a href="/roupas"
+                   class="block py-3 px-4 rounded-xl hover:bg-blue-600 transition">
+                    👕 Minhas Roupas
+                </a>
+
+                <a href="/historico_page"
+                   class="block py-3 px-4 rounded-xl hover:bg-blue-600 transition">
+                    📅 Histórico
+                </a>
+
+            </nav>
+
+        </aside>
+
+        <!-- CONTEÚDO -->
+        <main class="ml-64 flex-1 p-8">
+
+            {% block content %}
+            {% endblock %}
+
+        </main>
+
+    </div>
+
+</body>
+</html>

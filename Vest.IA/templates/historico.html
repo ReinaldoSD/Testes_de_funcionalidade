@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1 class="text-4xl font-bold text-dark mb-8">
+    📅 Histórico de Uso
+</h1>
+
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+
+    <table class="w-full">
+
+        <thead class="bg-slate-100">
+
+            <tr>
+
+                <th class="text-left px-6 py-4 text-slate-700">
+                    Peça
+                </th>
+
+                <th class="text-left px-6 py-4 text-slate-700">
+                    Data de Uso
+                </th>
+
+            </tr>
+
+        </thead>
+
+        <tbody id="tabelaHistorico">
+        </tbody>
+
+    </table>
+
+</div>
+
+<script>
+
+function carregarHistorico() {
+
+    fetch('/historico')
+
+    .then(res => res.json())
+
+    .then(dados => {
+
+        const tbody = document.getElementById('tabelaHistorico');
+
+        tbody.innerHTML = '';
+
+        dados.forEach(h => {
+
+            tbody.innerHTML += `
+
+            <tr class="border-b hover:bg-slate-50 transition">
+
+                <td class="px-6 py-4 font-medium text-slate-800">
+                    ${h.nome}
+                </td>
+
+                <td class="px-6 py-4 text-slate-500">
+                    ${h.data_uso}
+                </td>
+
+            </tr>
+            `;
+        });
+    });
+}
+
+window.onload = carregarHistorico;
+
+</script>
+
+{% endblock %}

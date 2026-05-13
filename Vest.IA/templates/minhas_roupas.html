@@ -1,0 +1,251 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="flex flex-col lg:flex-row gap-8">
+
+    <div class="flex-1">
+
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+
+            <div>
+                <h1 class="text-4xl font-bold text-slate-800">
+                    👕 Minhas Roupas
+                </h1>
+
+                <p class="text-slate-500 mt-2">
+                    Gerencie todas as peças do seu guarda-roupa inteligente.
+                </p>
+            </div>
+
+            <a href="/cadastrar"
+               class="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:scale-[1.02] transition text-white px-6 py-3 rounded-2xl font-semibold shadow-lg">
+                ➕ Nova Roupa
+            </a>
+
+        </div>
+
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 mb-8">
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+                <input type="text" id="filtroNome" placeholder="Buscar roupa..."
+                    class="border border-slate-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-violet-500 outline-none">
+
+                <select id="filtroTipo"
+                    class="border border-slate-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-violet-500 outline-none">
+
+                    <option value="">Todos os tipos</option>
+                    <option value="Camisa">Camisa</option>
+                    <option value="Calça">Calça</option>
+                    <option value="Jaqueta">Jaqueta</option>
+                    <option value="Tênis">Tênis</option>
+
+                </select>
+
+                <select id="filtroCor"
+                    class="border border-slate-200 rounded-2xl px-4 py-3 focus:ring-2 focus:ring-violet-500 outline-none">
+                    <option value="">Todas as cores</option>
+                    <option value="Preto">Preto</option>
+                    <option value="Branco">Branco</option>
+                    <option value="Azul">Azul</option>
+                    <option value="Vermelho">Vermelho</option>
+                </select>
+
+                <button onclick="carregarRoupas()"
+                    class="bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-semibold transition">
+                    Filtrar
+                </button>
+
+            </div>
+
+        </div>
+
+        <div id="listaRoupas" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6"></div>
+
+    </div>
+
+    <aside class="w-full lg:w-80 space-y-6">
+
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+
+            <h2 class="text-xl font-bold text-slate-800 mb-5">
+                📊 Resumo
+            </h2>
+
+            <div class="space-y-4">
+
+                <div class="bg-violet-50 rounded-2xl p-4">
+                    <p class="text-sm text-slate-500">Total de peças</p>
+                    <h3 id="totalRoupas" class="text-3xl font-bold text-violet-700">0</h3>
+                </div>
+
+                <div class="bg-fuchsia-50 rounded-2xl p-4">
+                    <p class="text-sm text-slate-500">Mais usada</p>
+                    <h3 class="text-lg font-semibold text-fuchsia-700">Camiseta Preta</h3>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+
+            <h2 class="text-xl font-bold text-slate-800 mb-5">
+                🧠 Pouco Usadas
+            </h2>
+
+            <div id="menosUsadas" class="space-y-4"></div>
+
+        </div>
+
+    </aside>
+
+</div>
+
+<script>
+
+let roupasGlobais = [];
+
+function normalizar(texto) {
+    return (texto || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+}
+
+function gerarHTMLImagem(roupa) {
+
+    const fotos = roupa.fotos;
+
+    if (!fotos || fotos.length === 0) {
+        return `<div class="w-full h-64 bg-slate-200 flex items-center justify-center text-slate-400">Sem foto</div>`;
+    }
+
+    return `<img src="/${fotos[0]}" class="w-full h-64 object-cover hover:scale-105 transition duration-500">`;
+}
+
+function renderizarMenosUsadas(roupas) {
+
+    const container = document.getElementById('menosUsadas');
+    container.innerHTML = '';
+
+    const menosUsadas = [...roupas]
+        .sort((a, b) => a.vezes_usada - b.vezes_usada)
+        .slice(0, 3);
+
+    menosUsadas.forEach(r => {
+
+        container.innerHTML += `
+        <div class="bg-slate-50 rounded-2xl p-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h3 class="font-semibold text-slate-800">${r.nome}</h3>
+                    <p class="text-sm text-slate-500">${r.tipo}</p>
+                </div>
+                <span class="text-xs bg-violet-100 text-violet-700 px-3 py-1 rounded-full">
+                    ${r.vezes_usada || 0} usos
+                </span>
+            </div>
+        </div>`;
+    });
+}
+
+function carregarRoupas() {
+
+    fetch('/listar')
+        .then(res => res.json())
+        .then(roupas => {
+
+            roupasGlobais = roupas;
+
+            const nome = normalizar(document.getElementById('filtroNome').value);
+            const tipo = normalizar(document.getElementById('filtroTipo').value);
+            const cor = normalizar(document.getElementById('filtroCor').value);
+
+            let filtradas = roupas.filter(r => {
+
+                const nomeRoupa = normalizar(r.nome);
+                const tipoRoupa = normalizar(r.tipo);
+                const corRoupa = normalizar(r.cor);
+
+                return (
+                    nomeRoupa.includes(nome) &&
+                    (tipo === '' || tipoRoupa === tipo) &&
+                    (cor === '' || corRoupa === cor)
+                );
+            });
+
+            const container = document.getElementById('listaRoupas');
+            container.innerHTML = '';
+
+            document.getElementById('totalRoupas').textContent = filtradas.length;
+
+            renderizarMenosUsadas(roupas);
+
+            filtradas.forEach(roupa => {
+
+                container.innerHTML += `
+                <div class="bg-white rounded-3xl overflow-hidden shadow-sm border border-slate-100 hover:shadow-2xl transition duration-300">
+
+                    <div class="overflow-hidden">
+                        ${gerarHTMLImagem(roupa)}
+                    </div>
+
+                    <div class="p-5">
+
+                        <div class="flex items-start justify-between mb-3">
+
+                            <div>
+                                <h2 class="text-xl font-bold text-slate-800">${roupa.nome}</h2>
+                                <p class="text-sm text-slate-500 mt-1">${roupa.tipo}</p>
+                            </div>
+
+                            <span class="bg-violet-100 text-violet-700 text-xs px-3 py-1 rounded-full font-semibold">
+                                ${roupa.cor}
+                            </span>
+
+                        </div>
+
+                        <div class="space-y-2 text-sm text-slate-500 mb-5">
+                            <p>📍 ${roupa.ocasiao}</p>
+                            <p>🌤️ ${roupa.clima_ideal}</p>
+                            <p>🔥 ${roupa.vezes_usada || 0} usos</p>
+                        </div>
+
+                        <div class="flex gap-3">
+
+                            <button onclick="usarRoupa(${roupa.id})"
+                                class="flex-1 bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white py-3 rounded-2xl font-semibold transition">
+                                Usar
+                            </button>
+
+                            <button onclick="excluirRoupa(${roupa.id})"
+                                class="bg-red-500 hover:bg-red-600 text-white px-5 rounded-2xl transition">
+                                🗑️
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>`;
+            });
+        });
+}
+
+function usarRoupa(id) {
+    fetch('/usar/' + id).then(() => carregarRoupas());
+}
+
+function excluirRoupa(id) {
+    if (!confirm("Deseja excluir esta roupa?")) return;
+    fetch('/excluir/' + id).then(() => carregarRoupas());
+}
+
+window.onload = carregarRoupas;
+
+</script>
+
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="mb-10">
+
+    <h1 class="text-4xl font-bold text-slate-800">
+        👋 Bem-vindo ao Vest.IA
+    </h1>
+
+    <p class="text-slate-500 mt-2 text-lg">
+        Seu guarda-roupa inteligente com IA
+    </p>
+
+</div>
+
+<!-- CARDS SUPERIORES -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+
+    <div class="bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white p-6 rounded-3xl shadow-xl">
+        <p class="text-sm opacity-80">
+            Total de Peças
+        </p>
+
+        <h2 id="totalRoupas" class="text-4xl font-bold mt-2">
+            0
+        </h2>
+    </div>
+
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+        <p class="text-slate-500 text-sm">
+            Mais usada
+        </p>
+
+        <h2 id="maisUsada" class="text-2xl font-bold text-slate-800 mt-2">
+            ---
+        </h2>
+    </div>
+
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+        <p class="text-slate-500 text-sm">
+            Menos usada
+        </p>
+
+        <h2 id="menosUsada" class="text-2xl font-bold text-slate-800 mt-2">
+            ---
+        </h2>
+    </div>
+
+</div>
+
+<!-- SUGESTÃO IA -->
+<div class="bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-3xl p-8 text-white shadow-xl mb-10">
+
+    <div class="flex items-center justify-between">
+
+        <div>
+
+            <h2 class="text-3xl font-bold mb-3">
+                ✨ Sugestão da IA
+            </h2>
+
+            <p id="sugestaoIA" class="text-lg text-violet-100">
+                Carregando sugestão...
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- AÇÕES -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+    <a href="/cadastrar"
+       class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition group">
+
+        <div class="text-5xl mb-4">
+            ➕
+        </div>
+
+        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-violet-600 transition">
+            Cadastrar Roupa
+        </h2>
+
+        <p class="text-slate-500 mt-3">
+            Adicione novas peças ao sistema.
+        </p>
+
+    </a>
+
+    <a href="/roupas"
+       class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition group">
+
+        <div class="text-5xl mb-4">
+            👕
+        </div>
+
+        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-violet-600 transition">
+            Meu Guarda-Roupa
+        </h2>
+
+        <p class="text-slate-500 mt-3">
+            Veja todas as peças cadastradas.
+        </p>
+
+    </a>
+
+    <a href="/historico_page"
+       class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition group">
+
+        <div class="text-5xl mb-4">
+            📅
+        </div>
+
+        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-violet-600 transition">
+            Histórico
+        </h2>
+
+        <p class="text-slate-500 mt-3">
+            Veja as roupas usadas recentemente.
+        </p>
+
+    </a>
+
+</div>
+
+<script>
+
+async function carregarDashboard() {
+
+    const res = await fetch('/listar');
+    const roupas = await res.json();
+
+    document.getElementById('totalRoupas').textContent = roupas.length;
+
+    if (roupas.length === 0) {
+        return;
+    }
+
+    const ordenadas = [...roupas].sort(
+        (a, b) => b.vezes_usada - a.vezes_usada
+    );
+
+    document.getElementById('maisUsada').textContent =
+        ordenadas[0]?.nome || "---";
+
+    document.getElementById('menosUsada').textContent =
+        ordenadas[ordenadas.length - 1]?.nome || "---";
+
+    document.getElementById('sugestaoIA').textContent = "";
+}
+
+window.onload = carregarDashboard;
+
+</script>
+
+{% endblock %}

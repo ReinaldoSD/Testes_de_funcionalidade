@@ -1,0 +1,217 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1 class="text-4xl font-bold text-dark mb-8">
+    ➕ Cadastrar Roupa
+</h1>
+
+<div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 max-w-4xl">
+
+    <div class="mb-8 p-6 bg-blue-50 rounded-xl border border-dashed border-blue-300">
+
+        <h2 class="text-2xl font-semibold mb-4">
+            📸 Análise com IA
+        </h2>
+
+        <label class="flex flex-col items-center justify-center w-full h-40 border-2 border-blue-400 border-dashed rounded-xl cursor-pointer bg-white hover:bg-slate-50 transition">
+
+            <div class="text-center">
+                <p class="text-4xl mb-2">📷</p>
+
+                <p class="text-gray-600">
+                    Clique para selecionar imagens
+                </p>
+
+                <p id="textoArquivo" class="text-sm text-gray-400 mt-2">
+                    Nenhuma foto selecionada
+                </p>
+            </div>
+
+            <input
+                type="file"
+                id="imagemInput"
+                accept="image/*"
+                multiple
+                class="hidden"
+                onchange="atualizarNomeArquivo(this)"
+            >
+        </label>
+
+        <button
+            onclick="cadastrarViaIA()"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold mt-5 transition"
+        >
+            ✨ Analisar Fotos
+        </button>
+
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+        <div>
+            <label class="block mb-2 font-medium text-gray-700">
+                Nome
+            </label>
+
+            <input
+                type="text"
+                id="nome"
+                class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            >
+        </div>
+
+        <div>
+            <label class="block mb-2 font-medium text-gray-700">
+                Tipo
+            </label>
+
+            <input
+                type="text"
+                id="tipo"
+                class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            >
+        </div>
+
+        <div>
+            <label class="block mb-2 font-medium text-gray-700">
+                Cor
+            </label>
+
+            <input
+                type="text"
+                id="cor"
+                class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            >
+        </div>
+
+        <div>
+            <label class="block mb-2 font-medium text-gray-700">
+                Ocasião
+            </label>
+
+            <input
+                type="text"
+                id="ocasiao"
+                class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            >
+        </div>
+
+        <div class="md:col-span-2">
+            <label class="block mb-2 font-medium text-gray-700">
+                Clima Ideal
+            </label>
+
+            <input
+                type="text"
+                id="clima"
+                class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            >
+        </div>
+
+    </div>
+
+    <input type="hidden" id="caminhosFotosAcumulados">
+
+    <button
+        onclick="finalizarCadastro()"
+        class="w-full bg-slate-900 hover:bg-slate-800 text-white py-4 rounded-xl font-semibold mt-8 transition"
+    >
+        💾 Salvar Roupa
+    </button>
+
+</div>
+
+<script>
+
+function atualizarNomeArquivo(input) {
+
+    const texto = document.getElementById('textoArquivo');
+
+    if (input.files.length > 0) {
+        texto.textContent = input.files.length + " imagem(ns) selecionada(s)";
+    }
+}
+
+function cadastrarViaIA() {
+
+    const input = document.getElementById('imagemInput');
+
+    if (input.files.length === 0) {
+        alert("Selecione imagens primeiro.");
+        return;
+    }
+
+    const formData = new FormData();
+
+    for (let i = 0; i < input.files.length; i++) {
+        formData.append('imagem', input.files[i]);
+    }
+
+    fetch('/cadastrar_via_imagem', {
+        method: 'POST',
+        body: formData
+    })
+
+    .then(res => res.json())
+
+    .then(data => {
+
+        document.getElementById('nome').value = data.dados.nome;
+        document.getElementById('tipo').value = data.dados.tipo;
+        document.getElementById('cor').value = data.dados.cor;
+        document.getElementById('ocasiao').value = data.dados.ocasiao;
+        document.getElementById('clima').value = data.dados.clima_ideal;
+
+        document.getElementById('caminhosFotosAcumulados').value =
+            JSON.stringify(data.fotos_base64);
+
+        alert("IA analisou as imagens!");
+    })
+
+    .catch(() => {
+        alert("Erro ao analisar imagens.");
+    });
+}
+
+function finalizarCadastro() {
+
+    const dados = {
+
+        nome: document.getElementById('nome').value,
+        tipo: document.getElementById('tipo').value,
+        cor: document.getElementById('cor').value,
+        ocasiao: document.getElementById('ocasiao').value,
+        clima: document.getElementById('clima').value,
+
+        fotos_base64: JSON.parse(
+            document.getElementById('caminhosFotosAcumulados').value || "[]"
+        )
+    };
+
+    fetch('/salvar_final', {
+
+        method: 'POST',
+
+        headers: {
+            'Content-Type': 'application/json'
+        },
+
+        body: JSON.stringify(dados)
+
+    })
+
+    .then(res => res.json())
+
+    .then(data => {
+        alert(data.mensagem);
+    })
+
+    .catch(() => {
+        alert("Erro ao salvar roupa.");
+    });
+}
+
+</script>
+
+{% endblock %}

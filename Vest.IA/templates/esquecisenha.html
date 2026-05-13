@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Esqueci a Senha - Vest.IA</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-[#0f0720] text-white flex items-center justify-center min-h-screen">
+
+<div class="bg-white/10 p-8 rounded-2xl w-[380px] space-y-4 border border-white/20">
+
+<h1 class="text-2xl font-bold text-center">Recuperar Senha</h1>
+
+<!-- ETAPA 1: EMAIL -->
+<div id="etapa1">
+    <label class="text-xs text-blue-200">E-mail</label>
+
+    <input id="email" type="email" placeholder="Digite seu e-mail"
+        class="w-full p-3 rounded bg-white/10 border border-white/20 text-white mt-1">
+
+    <button onclick="enviarCodigo()"
+        class="w-full mt-3 bg-violet-600 p-3 rounded font-semibold">
+        Enviar código
+    </button>
+</div>
+
+<!-- ETAPA 2: CÓDIGO -->
+<div id="etapa2" class="hidden">
+    <label class="text-xs text-blue-200">Código de 6 dígitos</label>
+
+    <input id="codigo" type="text" placeholder="Ex: 123456"
+        class="w-full p-3 rounded bg-white/10 border border-white/20 text-white mt-1">
+
+    <button onclick="validarCodigo()"
+        class="w-full mt-3 bg-fuchsia-600 p-3 rounded font-semibold">
+        Validar código
+    </button>
+</div>
+
+<!-- ETAPA 3: NOVA SENHA -->
+<div id="etapa3" class="hidden">
+    <label class="text-xs text-blue-200">Nova senha</label>
+
+    <input id="senha" type="password" placeholder="Digite a nova senha"
+        class="w-full p-3 rounded bg-white/10 border border-white/20 text-white mt-1">
+
+    <button onclick="redefinirSenha()"
+        class="w-full mt-3 bg-green-600 p-3 rounded font-semibold">
+        Salvar senha
+    </button>
+</div>
+
+</div>
+
+<script>
+
+let emailGlobal = "";
+
+function enviarCodigo() {
+
+    emailGlobal = document.getElementById("email").value;
+
+    if (!emailGlobal) {
+        alert("Digite seu e-mail");
+        return;
+    }
+
+    fetch("/enviar_codigo", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({email: emailGlobal})
+    });
+
+    document.getElementById("etapa1").classList.add("hidden");
+    document.getElementById("etapa2").classList.remove("hidden");
+
+    alert("Código enviado para seu e-mail!");
+}
+
+function validarCodigo() {
+
+    const codigo = document.getElementById("codigo").value;
+
+    fetch("/validar_codigo", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            email: emailGlobal,
+            codigo: codigo
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+
+        if (data.ok) {
+            document.getElementById("etapa2").classList.add("hidden");
+            document.getElementById("etapa3").classList.remove("hidden");
+        } else {
+            alert(data.mensagem || "Código inválido");
+        }
+    });
+}
+
+function redefinirSenha() {
+
+    const senha = document.getElementById("senha").value;
+
+    fetch("/redefinir_senha", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({senha: senha})
+    })
+    .then(r => r.json())
+    .then(data => {
+
+        alert(data.mensagem || "Senha atualizada!");
+
+        window.location.href = "/";
+    });
+}
+
+</script>
+
+</body>
+</html>
