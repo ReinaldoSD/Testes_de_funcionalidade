@@ -1,0 +1,629 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<style>
+/* ── VARIÁVEIS ──────────────────────────────── */
+:root {
+  --neon: #a855f7;
+  --neon2: #ec4899;
+  --glass: rgba(255,255,255,0.06);
+  --glass-border: rgba(168,85,247,0.18);
+  --dark: #0d0716;
+  --card: rgba(18,10,38,0.82);
+}
+
+/* ── FUNDO ──────────────────────────────────── */
+.page-bg {
+  background: linear-gradient(135deg, #0d0716 0%, #130d2a 50%, #0d0716 100%);
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+.page-bg::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(168,85,247,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 80% 80%, rgba(236,72,153,0.10) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── GRADE DE PONTOS ────────────────────────── */
+.dot-grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image: radial-gradient(rgba(168,85,247,0.15) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* ── CONTEÚDO ───────────────────────────────── */
+.page-content { position: relative; z-index: 1; }
+
+/* ── GLASS CARD ─────────────────────────────── */
+.glass {
+  background: var(--card);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ── INPUT FUTURÍSTICO ──────────────────────── */
+.input-cyber {
+  background: rgba(168,85,247,0.07);
+  border: 1.5px solid rgba(168,85,247,0.3);
+  color: #e2d9f5;
+  transition: border-color .25s, box-shadow .25s;
+}
+.input-cyber::placeholder { color: rgba(196,172,255,0.4); }
+.input-cyber:focus {
+  outline: none;
+  border-color: var(--neon);
+  box-shadow: 0 0 0 3px rgba(168,85,247,0.15), 0 0 20px rgba(168,85,247,0.12);
+}
+
+/* ── BOTÃO NEON ─────────────────────────────── */
+.btn-neon {
+  background: linear-gradient(135deg, #7c3aed, #a855f7, #ec4899);
+  border: none;
+  color: white;
+  font-weight: 700;
+  transition: opacity .2s, transform .15s, box-shadow .2s;
+  box-shadow: 0 4px 20px rgba(168,85,247,0.35);
+}
+.btn-neon:hover { opacity: .92; transform: translateY(-1px); box-shadow: 0 6px 28px rgba(168,85,247,0.5); }
+.btn-neon:active { transform: translateY(0); }
+
+/* ── CHIPS ──────────────────────────────────── */
+.chip {
+  background: rgba(168,85,247,0.1);
+  border: 1px solid rgba(168,85,247,0.25);
+  color: #c4acff;
+  font-size: 12px; font-weight: 600;
+  padding: 6px 14px; border-radius: 999px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.chip:hover {
+  background: rgba(168,85,247,0.25);
+  border-color: var(--neon);
+  color: #e9d5ff;
+  transform: translateY(-1px);
+}
+
+/* ── CARD DE PEÇA ───────────────────────────── */
+.peca-card {
+  background: rgba(168,85,247,0.07);
+  border: 1px solid rgba(168,85,247,0.15);
+  border-radius: 18px;
+  overflow: hidden;
+  transition: transform .2s, border-color .2s, box-shadow .2s;
+  position: relative;
+}
+.peca-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(168,85,247,0.5);
+  box-shadow: 0 8px 30px rgba(168,85,247,0.2);
+}
+.peca-card img {
+  width: 100%; aspect-ratio: 1; object-fit: cover;
+  display: block;
+}
+.peca-label {
+  padding: 8px 10px;
+  border-top: 1px solid rgba(168,85,247,0.1);
+}
+.peca-tipo-badge {
+  font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  background: rgba(168,85,247,0.15); color: #c084fc;
+  padding: 2px 7px; border-radius: 999px; display: inline-block; margin-bottom: 3px;
+}
+
+/* ── LINHA DE SCAN ──────────────────────────── */
+@keyframes scanline {
+  0%   { top: -5%; }
+  100% { top: 105%; }
+}
+.scan-overlay {
+  position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: inherit;
+}
+.scan-overlay::after {
+  content: '';
+  position: absolute; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, transparent, rgba(168,85,247,0.6), transparent);
+  animation: scanline 2.4s linear infinite;
+}
+
+/* ── BOTÕES DE FEEDBACK ─────────────────────── */
+.btn-feedback {
+  font-size: 13px; font-weight: 700;
+  padding: 10px 20px; border-radius: 14px;
+  transition: all .2s; cursor: pointer;
+  display: flex; align-items: center; gap: 7px;
+}
+.btn-like    { background: rgba(16,185,129,.12); border: 1.5px solid rgba(16,185,129,.3); color: #34d399; }
+.btn-dislike { background: rgba(239,68,68,.10);  border: 1.5px solid rgba(239,68,68,.28); color: #f87171; }
+.btn-refresh { background: rgba(168,85,247,.12); border: 1.5px solid rgba(168,85,247,.3); color: #c084fc; }
+.btn-use     { background: rgba(16,185,129,.12); border: 1.5px solid rgba(16,185,129,.3); color: #34d399; }
+
+.btn-feedback:hover { transform: translateY(-1px); filter: brightness(1.15); }
+.btn-feedback.ativo { filter: brightness(1.3); box-shadow: 0 0 16px currentColor; }
+
+/* ── BARRA LATERAL DE CLIMA ─────────────────── */
+.clima-card {
+  border-radius: 16px; padding: 14px 16px;
+  border: 1px solid; cursor: pointer;
+  transition: all .2s;
+}
+.clima-card:hover { transform: translateY(-2px); }
+.clima-calor  { background: rgba(245,158,11,.08); border-color: rgba(245,158,11,.2); }
+.clima-frio   { background: rgba(59,130,246,.08);  border-color: rgba(59,130,246,.2); }
+.clima-meia   { background: rgba(16,185,129,.08); border-color: rgba(16,185,129,.2); }
+.clima-card.ativo { box-shadow: 0 0 20px currentColor; }
+
+/* ── ANIMAÇÕES ──────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp .4s ease forwards; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin .8s linear infinite; }
+
+/* ── MINI PEÇAS NOS CARDS DE CLIMA ─────────── */
+.mini-peca {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,.05);
+}
+.mini-peca:last-child { border-bottom: none; }
+.mini-peca img { width: 32px; height: 32px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+
+/* ── TAG DE CLIMA ───────────────────────────── */
+.clima-tag {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .07em;
+  padding: 3px 10px; border-radius: 999px;
+}
+
+/* ── SPINNER LOADING ────────────────────────── */
+.loader { display: inline-block; width: 22px; height: 22px; border: 2.5px solid rgba(168,85,247,.2); border-top-color: var(--neon); border-radius: 50%; }
+</style>
+
+<div class="page-bg -m-4 sm:-m-8 lg:-m-12 p-4 sm:p-8 lg:p-12">
+<div class="dot-grid"></div>
+<div class="page-content">
+
+<!-- ══ CABEÇALHO ══════════════════════════════════════════════════════ -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+  <div>
+    <h1 class="text-3xl font-bold text-white tracking-tight">
+      ✨ <span style="background: linear-gradient(90deg,#a855f7,#ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Sugestões de Look</span>
+    </h1>
+    <p class="text-purple-300/70 mt-1 text-sm">Diga o que você precisa e montamos a combinação ideal do seu guarda-roupa.</p>
+  </div>
+  <!-- badge de clima -->
+  <div id="climaBadge" class="hidden glass rounded-2xl px-5 py-2.5 flex items-center gap-3 text-sm font-semibold">
+    <span id="climaIcon" class="text-xl">🌡️</span>
+    <div>
+      <div id="climaTemp" class="text-white font-bold">—</div>
+      <div id="climaLabel" class="text-purple-300/70 text-xs font-medium">Carregando...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BARRA DE BUSCA ═════════════════════════════════════════════════ -->
+<div class="glass rounded-3xl p-6 mb-8">
+  <div class="flex flex-col sm:flex-row gap-3 mb-4">
+    <div class="relative flex-1">
+      <input id="inputBusca" type="text"
+        placeholder="Ex: quero ir à faculdade, festa à noite, academia, trabalho formal..."
+        class="input-cyber w-full px-5 py-3.5 rounded-2xl text-sm font-medium"
+        onkeydown="if(event.key==='Enter') gerarLook()">
+      <div id="loadingIcon" class="hidden absolute right-4 top-1/2 -translate-y-1/2">
+        <div class="loader spin"></div>
+      </div>
+    </div>
+    <button onclick="gerarLook()" id="btnGerar"
+      class="btn-neon px-7 py-3.5 rounded-2xl text-sm whitespace-nowrap">
+      Gerar Look
+    </button>
+  </div>
+
+  <!-- chips de sugestão rápida -->
+  <div class="flex flex-wrap gap-2">
+    <span class="text-purple-400/60 text-xs font-semibold self-center mr-1">Rápido:</span>
+    <button class="chip" onclick="usarChip('Faculdade')">🎓 Faculdade</button>
+    <button class="chip" onclick="usarChip('Trabalho')">💼 Trabalho</button>
+    <button class="chip" onclick="usarChip('Festa')">🎉 Festa</button>
+    <button class="chip" onclick="usarChip('Academia')">🏋️ Academia</button>
+    <button class="chip" onclick="usarChip('Passeio casual')">☀️ Passeio</button>
+    <button class="chip" onclick="usarChip('Jantar elegante')">🍷 Jantar</button>
+  </div>
+</div>
+
+<!-- ══ GRID PRINCIPAL ═════════════════════════════════════════════════ -->
+<div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+  <!-- ── LOOK GERADO (2/3) ── -->
+  <div class="xl:col-span-2">
+
+    <!-- estado vazio -->
+    <div id="lookVazio" class="glass rounded-3xl flex flex-col items-center justify-center py-24 text-center">
+      <div class="text-7xl mb-5" style="filter: drop-shadow(0 0 20px rgba(168,85,247,0.5))">👗</div>
+      <p class="text-purple-200/70 text-lg font-semibold">Seu look aparece aqui</p>
+      <p class="text-purple-400/40 text-sm mt-2">Digite acima o que você precisa e clique em <strong class="text-purple-400/60">Gerar Look</strong></p>
+    </div>
+
+    <!-- look gerado -->
+    <div id="lookGerado" class="hidden fade-up">
+
+      <!-- topo do card -->
+      <div class="glass rounded-3xl p-6 mb-4">
+        <div class="flex items-start justify-between mb-5">
+          <div>
+            <p class="text-purple-400/60 text-xs font-bold uppercase tracking-widest mb-1">Look Gerado</p>
+            <h2 id="lookTitulo" class="text-xl font-bold text-white">—</h2>
+            <div class="flex items-center gap-2 mt-2 flex-wrap">
+              <span id="lookClima" class="clima-tag bg-purple-900/60 text-purple-300 border border-purple-700/40">—</span>
+              <span id="lookOcasiao" class="clima-tag bg-fuchsia-900/50 text-fuchsia-300 border border-fuchsia-700/40">—</span>
+            </div>
+          </div>
+          <!-- botão novo look -->
+          <button onclick="gerarOutroLook()" title="Gerar outra combinação"
+            class="glass rounded-xl p-2.5 text-purple-400 hover:text-purple-200 transition group ml-3 flex-shrink-0">
+            <svg class="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- peças do look -->
+        <div id="lookPecas" class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5"></div>
+
+        <!-- descrição -->
+        <div id="lookDescricao" class="rounded-2xl px-4 py-3 text-sm text-purple-200/80 leading-relaxed mb-5"
+          style="background: rgba(168,85,247,0.07); border: 1px solid rgba(168,85,247,0.15);">
+        </div>
+
+        <!-- ── FEEDBACK ── -->
+        <div id="feedbackArea">
+          <p class="text-purple-400/50 text-xs font-bold uppercase tracking-widest mb-3">O que você achou?</p>
+          <div class="flex flex-wrap gap-3">
+            <button class="btn-feedback btn-like" id="btnGostei" onclick="feedback('gostei')">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg>
+              Gostei! Vou usar
+            </button>
+            <button class="btn-feedback btn-dislike" id="btnNaoGostei" onclick="feedback('nao_gostei')">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14H5.236a2 2 0 01-1.789-2.894l3.5-7A2 2 0 018.736 3h4.018a2 2 0 01.485.06l3.76.94m-7 10v5a2 2 0 002 2h.096c.5 0 .905-.405.905-.905 0-.714.211-1.412.608-2.006L17 13V4m-7 10h2m5-10h2a2 2 0 012 2v6a2 2 0 01-2 2h-2.5"/></svg>
+              Não gostei
+            </button>
+            <button class="btn-feedback btn-refresh" onclick="gerarOutroLook()">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              Outra combinação
+            </button>
+          </div>
+        </div>
+
+        <!-- ── REFINAMENTO (oculto até "não gostei") ── -->
+        <div id="refineArea" class="hidden mt-5 pt-5 border-t border-purple-900/50">
+          <p class="text-purple-300/70 text-sm font-semibold mb-3">💬 O que você quer mudar?</p>
+          <div class="flex flex-wrap gap-2 mb-3">
+            <button class="chip" onclick="refinar('Quero cores mais escuras')">🎨 Cores escuras</button>
+            <button class="chip" onclick="refinar('Quero cores mais claras')">☁️ Cores claras</button>
+            <button class="chip" onclick="refinar('Sem casaco')">🚫 Sem casaco</button>
+            <button class="chip" onclick="refinar('Prefiro calça em vez de bermuda')">👖 Trocar por calça</button>
+            <button class="chip" onclick="refinar('Algo mais formal')">👔 Mais formal</button>
+            <button class="chip" onclick="refinar('Algo mais casual')">😎 Mais casual</button>
+          </div>
+          <div class="flex gap-2">
+            <input id="inputRefine" type="text" placeholder="Ou escreva o que prefere..."
+              class="input-cyber flex-1 px-4 py-2.5 rounded-xl text-sm"
+              onkeydown="if(event.key==='Enter') refinarCustom()">
+            <button onclick="refinarCustom()" class="btn-neon px-5 py-2.5 rounded-xl text-sm">Aplicar</button>
+          </div>
+        </div>
+
+        <!-- confirmação de uso -->
+        <div id="confirmacaoUso" class="hidden mt-4 rounded-2xl px-4 py-3 text-sm font-semibold text-emerald-300"
+          style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25);">
+          ✅ Look registrado no seu histórico de uso!
+        </div>
+
+      </div><!-- /glass card -->
+    </div><!-- /lookGerado -->
+  </div><!-- /col 2/3 -->
+
+  <!-- ── LOOKS POR CLIMA (1/3) ── -->
+  <div class="xl:col-span-1 flex flex-col gap-4">
+
+    <p class="text-purple-400/60 text-xs font-bold uppercase tracking-widest px-1">📅 Looks por clima do dia</p>
+
+    <!-- Calor -->
+    <div class="clima-card clima-calor glass">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-sm font-bold text-amber-400">☀️ Clima Quente</span>
+        <span class="clima-tag bg-amber-900/50 text-amber-300 border border-amber-700/40">Calor</span>
+      </div>
+      <div id="paginaLookCalor" class="space-y-1 text-purple-400/50 text-xs text-center py-3">Carregando...</div>
+      <button onclick="marcarLookUsado('calor')"
+        class="mt-3 w-full btn-feedback btn-use rounded-xl py-2 text-xs justify-center">
+        ✓ Usar esta combinação
+      </button>
+    </div>
+
+    <!-- Frio -->
+    <div class="clima-card clima-frio glass">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-sm font-bold text-blue-400">❄️ Clima Frio</span>
+        <span class="clima-tag bg-blue-900/50 text-blue-300 border border-blue-700/40">Frio</span>
+      </div>
+      <div id="paginaLookFrio" class="space-y-1 text-purple-400/50 text-xs text-center py-3">Carregando...</div>
+      <button onclick="marcarLookUsado('frio')"
+        class="mt-3 w-full btn-feedback btn-use rounded-xl py-2 text-xs justify-center">
+        ✓ Usar esta combinação
+      </button>
+    </div>
+
+    <!-- Meia estação -->
+    <div class="clima-card clima-meia glass">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-sm font-bold text-emerald-400">🍁 Clima Ameno</span>
+        <span class="clima-tag bg-emerald-900/50 text-emerald-300 border border-emerald-700/40">Meia estação</span>
+      </div>
+      <div id="paginaLookMeia" class="space-y-1 text-purple-400/50 text-xs text-center py-3">Carregando...</div>
+      <button onclick="marcarLookUsado('meia_estacao')"
+        class="mt-3 w-full btn-feedback btn-use rounded-xl py-2 text-xs justify-center">
+        ✓ Usar esta combinação
+      </button>
+    </div>
+
+  </div><!-- /col clima -->
+</div><!-- /grid -->
+
+</div><!-- /page-content -->
+</div><!-- /page-bg -->
+
+<!-- ══ JAVASCRIPT ═════════════════════════════════════════════════════ -->
+<script>
+// ── ESTADO ────────────────────────────────────────────────────────────
+let cacheLooksNaPagina = {};
+let lookAtual          = null;
+let ultimaBusca        = '';
+let climaAtualGlobal   = null;
+let tempAtualGlobal    = null;
+
+// ── INIT ──────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  carregarDadosClima();
+});
+
+// ── CLIMA ─────────────────────────────────────────────────────────────
+async function carregarDadosClima() {
+  try {
+    const r = await fetch('/api/sugestoes_combinacoes');
+    const d = await r.json();
+
+    climaAtualGlobal = d.clima_atual;
+    tempAtualGlobal  = d.temperatura;
+
+    // badge de clima
+    const badge = document.getElementById('climaBadge');
+    badge.classList.remove('hidden');
+    badge.classList.add('flex');
+
+    if (tempAtualGlobal !== null) {
+      let ic = '🌤️', lab = 'Clima Ameno';
+      if (climaAtualGlobal === 'calor') { ic = '☀️'; lab = 'Clima Quente'; }
+      else if (climaAtualGlobal === 'frio') { ic = '❄️'; lab = 'Clima Frio'; }
+      document.getElementById('climaIcon').textContent  = ic;
+      document.getElementById('climaTemp').textContent  = `${tempAtualGlobal.toFixed(1)} °C`;
+      document.getElementById('climaLabel').textContent = lab;
+    } else {
+      document.getElementById('climaTemp').textContent  = '—';
+      document.getElementById('climaLabel').textContent = 'Clima indisponível';
+    }
+
+    // looks por clima
+    cacheLooksNaPagina.calor        = d.looks.calor;
+    cacheLooksNaPagina.frio         = d.looks.frio;
+    cacheLooksNaPagina.meia_estacao = d.looks.meia_estacao;
+
+    renderizarMiniLook(d.looks.calor,        'paginaLookCalor');
+    renderizarMiniLook(d.looks.frio,         'paginaLookFrio');
+    renderizarMiniLook(d.looks.meia_estacao, 'paginaLookMeia');
+  } catch(e) { console.error(e); }
+}
+
+// função mantida compatível com nome antigo
+async function buscarLooksDetalhados() { await carregarDadosClima(); }
+
+// ── MINI LOOKS (coluna clima) ─────────────────────────────────────────
+function renderizarMiniLook(pecas, elementId) {
+  const el = document.getElementById(elementId);
+  if (!pecas || pecas.length === 0) {
+    el.innerHTML = '<p class="py-2">Sem roupas suficientes.</p>';
+    return;
+  }
+  el.innerHTML = '';
+  pecas.slice(0, 3).forEach(p => {
+    let img = p.foto;
+    if (!img || img === 'None') img = 'https://cdn-icons-png.flaticon.com/512/3159/3159614.png';
+    if (img && !img.startsWith('/') && !img.startsWith('http')) img = '/' + img;
+    el.innerHTML += `
+      <div class="mini-peca">
+        <img src="${img}" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3159/3159614.png'" alt="${p.nome}">
+        <div class="min-w-0">
+          <p class="text-xs text-purple-200/80 font-semibold truncate">${p.nome}</p>
+          <p class="text-[10px] text-purple-400/50 capitalize">${p.tipo || ''}</p>
+        </div>
+      </div>`;
+  });
+}
+
+// ── USAR CHIP ─────────────────────────────────────────────────────────
+function usarChip(texto) {
+  document.getElementById('inputBusca').value = texto;
+  gerarLook();
+}
+
+// ── GERAR LOOK ────────────────────────────────────────────────────────
+async function gerarLook(excluirIds = []) {
+  const input = document.getElementById('inputBusca');
+  const texto = input.value.trim();
+  if (!texto) { input.focus(); return; }
+  ultimaBusca = texto;
+  await chamarAPI(texto, excluirIds);
+}
+
+async function gerarOutroLook() {
+  if (!ultimaBusca) return;
+  const excluir = lookAtual ? lookAtual.pecas.map(p => p.id) : [];
+  await chamarAPI(ultimaBusca, excluir);
+}
+
+async function refinar(texto) {
+  const novaMsg = ultimaBusca + ' — ' + texto;
+  document.getElementById('inputBusca').value = ultimaBusca;
+  await chamarAPI(novaMsg, []);
+}
+
+async function refinarCustom() {
+  const extra = document.getElementById('inputRefine').value.trim();
+  if (!extra) return;
+  document.getElementById('inputRefine').value = '';
+  await refinar(extra);
+}
+
+// ── CHAMADA À API ─────────────────────────────────────────────────────
+async function chamarAPI(mensagem, excluirIds) {
+  // UI loading
+  const btnGerar    = document.getElementById('btnGerar');
+  const loadingIcon = document.getElementById('loadingIcon');
+  btnGerar.disabled    = true;
+  btnGerar.classList.add('opacity-50');
+  loadingIcon.classList.remove('hidden');
+
+  // esconder resultado anterior e feedback
+  document.getElementById('confirmacaoUso').classList.add('hidden');
+  document.getElementById('refineArea').classList.add('hidden');
+  document.getElementById('btnGostei').classList.remove('ativo');
+  document.getElementById('btnNaoGostei').classList.remove('ativo');
+
+  try {
+    const r = await fetch('/api/stylist_look', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mensagem:    mensagem,
+        clima_atual: climaAtualGlobal,
+        temperatura: tempAtualGlobal,
+        excluir_ids: excluirIds,
+        look_atual:  excluirIds,
+        historico:   []
+      })
+    });
+    const dados = await r.json();
+
+    // UI reset loading
+    btnGerar.disabled = false;
+    btnGerar.classList.remove('opacity-50');
+    loadingIcon.classList.add('hidden');
+
+    if (dados.look && dados.look.pecas && dados.look.pecas.length > 0) {
+      lookAtual = dados.look;
+      exibirLook(dados.look);
+    } else {
+      // sem resultado: mostrar mensagem
+      mostrarMensagemSemResultado(dados.resposta_ia || 'Não encontrei combinações. Tente outro termo!');
+    }
+  } catch(e) {
+    btnGerar.disabled = false;
+    btnGerar.classList.remove('opacity-50');
+    loadingIcon.classList.add('hidden');
+    console.error(e);
+  }
+}
+
+// ── EXIBIR LOOK ───────────────────────────────────────────────────────
+function exibirLook(look) {
+  document.getElementById('lookVazio').classList.add('hidden');
+
+  const el = document.getElementById('lookGerado');
+  el.classList.remove('hidden');
+  // re-trigger animation
+  el.classList.remove('fade-up');
+  void el.offsetWidth;
+  el.classList.add('fade-up');
+
+  // título e tags
+  document.getElementById('lookTitulo').textContent   = look.titulo || 'Look Gerado';
+  document.getElementById('lookClima').textContent    = look.clima   || '—';
+  document.getElementById('lookOcasiao').textContent  = look.ocasiao || '—';
+  document.getElementById('lookDescricao').textContent = look.descricao?.replace(/<[^>]*>/g,'') || '';
+
+  // peças
+  const grid = document.getElementById('lookPecas');
+  grid.innerHTML = '';
+  (look.pecas || []).forEach(peca => {
+    let img = peca.foto;
+    if (!img || img === 'None') img = 'https://cdn-icons-png.flaticon.com/512/3159/3159614.png';
+    if (img && !img.startsWith('/') && !img.startsWith('http')) img = '/' + img;
+
+    const card = document.createElement('div');
+    card.className = 'peca-card';
+    card.innerHTML = `
+      <div class="scan-overlay"></div>
+      <img src="${img}" alt="${peca.nome}"
+           onerror="this.src='https://cdn-icons-png.flaticon.com/512/3159/3159614.png'">
+      <div class="peca-label">
+        <div class="peca-tipo-badge">${peca.tipo || 'Peça'}</div>
+        <p class="text-xs text-purple-200/80 font-semibold truncate">${peca.nome}</p>
+        <p class="text-[10px] text-purple-400/50 capitalize">${peca.cor || ''}</p>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function mostrarMensagemSemResultado(msg) {
+  document.getElementById('lookVazio').classList.remove('hidden');
+  document.getElementById('lookGerado').classList.add('hidden');
+  document.getElementById('lookVazio').querySelector('p').textContent = msg.replace(/<[^>]*>/g,'');
+}
+
+// ── FEEDBACK ──────────────────────────────────────────────────────────
+async function feedback(tipo) {
+  if (!lookAtual) return;
+
+  if (tipo === 'gostei') {
+    document.getElementById('btnGostei').classList.add('ativo');
+    document.getElementById('btnNaoGostei').classList.remove('ativo');
+    document.getElementById('refineArea').classList.add('hidden');
+    // registrar no histórico
+    for (const peca of lookAtual.pecas) {
+      await fetch('/usar/' + peca.id).catch(() => {});
+    }
+    document.getElementById('confirmacaoUso').classList.remove('hidden');
+    if (typeof mostrarToast === 'function') mostrarToast('Look adicionado ao histórico! 👕', 'sucesso');
+
+  } else {
+    document.getElementById('btnNaoGostei').classList.add('ativo');
+    document.getElementById('btnGostei').classList.remove('ativo');
+    document.getElementById('confirmacaoUso').classList.add('hidden');
+    document.getElementById('refineArea').classList.remove('hidden');
+    document.getElementById('refineArea').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// ── LOOKS POR CLIMA (mantidos) ────────────────────────────────────────
+async function marcarLookUsado(climaId) {
+  const pecas = cacheLooksNaPagina[climaId];
+  if (!pecas || pecas.length === 0) return;
+  for (const peca of pecas) {
+    await fetch('/usar/' + peca.id).catch(() => {});
+  }
+  if (typeof mostrarToast === 'function') mostrarToast('Combinação adicionada ao histórico! 👕', 'sucesso');
+  else alert('Combinação marcada como usada!');
+}
+</script>
+
+{% endblock %}

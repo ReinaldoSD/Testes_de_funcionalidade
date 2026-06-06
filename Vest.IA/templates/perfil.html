@@ -1,0 +1,115 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto pb-12">
+    
+    <div class="mb-6 px-2">
+        <h1 class="text-4xl font-bold text-slate-800">⚙️ Meu Perfil</h1>
+        <p class="text-slate-500 mt-2 text-lg">Gerencie suas informações pessoais e configurações da conta.</p>
+    </div>
+
+    <div class="w-full h-40 md:h-48 bg-violet-600 rounded-[2rem] shadow-sm"></div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 px-4 md:px-8 -mt-16 md:-mt-20 relative z-10">
+        
+        <div class="md:col-span-1 bg-white p-7 rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/40 flex flex-col items-center text-center h-fit">
+            
+            <div class="relative group -mt-16 md:-mt-20 mb-5">
+                <div class="p-1.5 bg-white rounded-full shadow-sm">
+                    <img id="fotoAtual"
+                         src="{{ usuario.foto_url if usuario.foto_url else 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y' }}?t={{ range(1, 1000) | random }}" 
+                         alt="Foto de Perfil" 
+                         class="w-32 h-32 rounded-full object-cover border-4 border-slate-50 shadow-md transition duration-300 group-hover:opacity-90 bg-slate-100">
+                </div>
+                
+                <label for="foto_perfil" class="absolute bottom-2 right-2 bg-violet-600 text-white p-2.5 rounded-full cursor-pointer hover:bg-violet-700 hover:scale-105 transition-all shadow-md border-2 border-white flex items-center justify-center" title="Alterar foto">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </label>
+            </div>
+
+            <form action="/perfil/atualizar_foto" method="POST" enctype="multipart/form-data" id="formFoto" class="hidden">
+                <input type="file" id="foto_perfil" name="foto_perfil" accept="image/*" onchange="document.getElementById('formFoto').submit()">
+            </form>
+
+            <h2 class="text-xl font-bold text-slate-800 break-words w-full">{{ usuario.nome }}</h2>
+            <p class="text-sm text-slate-500 mt-1 break-words w-full">{{ usuario.email }}</p>
+            
+            <div class="mt-8 pt-5 border-t border-slate-100 w-full text-left">
+                <div class="flex items-center justify-between text-sm text-slate-500">
+                    <span class="font-medium">Status da Conta:</span>
+                    <span class="bg-green-100 text-green-700 font-bold px-3 py-1 rounded-full text-xs tracking-wide uppercase">Ativa</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="md:col-span-2 space-y-6">
+            
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/30">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    👤 Dados Pessoais
+                </h3>
+                
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5 ml-1">Nome Completo</label>
+                        <div class="w-full px-5 py-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 text-sm font-medium">
+                            {{ usuario.nome }}
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5 ml-1">Endereço de E-mail</label>
+                        <div class="w-full px-5 py-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700 text-sm font-medium">
+                            {{ usuario.email }}
+                        </div>
+                    </div>
+                    
+                    <div class="pt-3">
+                        <a href="/perfil/alterar_dados"
+                           class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 transition text-white px-6 py-3 rounded-xl font-semibold text-sm shadow-md">
+                            ✏️ Alterar Nome ou E-mail
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/30">
+                <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    🔒 Segurança da Conta
+                </h3>
+                
+                <form action="/perfil/alterar_senha" method="POST" class="space-y-5">
+                    <div>
+                        <label for="senha_atual" class="block text-sm font-semibold text-slate-600 mb-1.5 ml-1">Senha Atual</label>
+                        <input type="password" id="senha_atual" name="senha_atual" required placeholder="••••••••"
+                               class="w-full px-5 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm transition bg-white">
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div>
+                            <label for="nova_senha" class="block text-sm font-semibold text-slate-600 mb-1.5 ml-1">Nova Senha</label>
+                            <input type="password" id="nova_senha" name="nova_senha" required placeholder="Mínimo 6 caracteres"
+                                   class="w-full px-5 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm transition bg-white">
+                        </div>
+                        <div>
+                            <label for="confirmar_senha" class="block text-sm font-semibold text-slate-600 mb-1.5 ml-1">Confirmar Nova Senha</label>
+                            <input type="password" id="confirmar_senha" name="confirmar_senha" required placeholder="Repita a nova senha"
+                                   class="w-full px-5 py-3.5 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm transition bg-white">
+                        </div>
+                    </div>
+
+                    <div class="pt-4 flex justify-end border-t border-slate-100 mt-6">
+                        <button type="submit" 
+                                class="mt-4 bg-violet-600 hover:bg-violet-700 transition text-white px-8 py-3 rounded-xl font-bold text-sm shadow-md flex items-center gap-2">
+                            🔑 Atualizar Senha
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
