@@ -1,0 +1,219 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-6 relative z-10">
+    <div class="backdrop-blur-xl bg-white border border-slate-200 rounded-[2rem] shadow-2xl p-8">
+
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-slate-800 mb-2">Alterar Dados</h1>
+            <p id="subtitulo" class="text-slate-500 text-sm">Confirme sua identidade para continuar</p>
+        </div>
+
+        <!-- ── Passo 1: Confirmar identidade ──────────────────── -->
+        <form id="passo-senha" onsubmit="confirmarSenha(event)" class="space-y-4">
+            <div>
+                <label class="block mb-1 text-sm font-medium text-slate-700">Seu E-mail Atual</label>
+                <input type="email" id="email_confirmacao"
+                       placeholder="Digite seu e-mail de login" required
+                       class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm">
+            </div>
+            <div>
+                <label class="block mb-1 text-sm font-medium text-slate-700">Sua Senha Atual</label>
+                <input type="password" id="senha_confirmacao"
+                       placeholder="Digite sua senha" required
+                       class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm">
+            </div>
+            <button type="submit" id="btnSenha"
+                    class="w-full bg-violet-600 hover:bg-violet-700 transition duration-300 text-white py-3 rounded-xl font-bold shadow-lg text-sm">
+                Confirmar Identidade
+            </button>
+            <div class="text-center mt-4">
+                <a href="/perfil" class="text-sm font-semibold text-slate-400 hover:text-slate-600 transition">Cancelar</a>
+            </div>
+        </form>
+
+        <!-- ── Passo 2: Editar nome e e-mail ──────────────────── -->
+        <form id="passo-dados" onsubmit="solicitarAlteracao(event)" class="hidden space-y-4">
+            <div>
+                <label class="block mb-1 text-sm font-medium text-slate-700">Nome Completo</label>
+                <input type="text" id="novo_nome" value="{{ usuario.nome }}" required
+                       class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm">
+            </div>
+            <div>
+                <label class="block mb-1 text-sm font-medium text-slate-700">Novo E-mail</label>
+                <input type="email" id="novo_email" value="{{ usuario.email }}" required
+                       class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500 text-sm">
+                <p class="text-xs text-amber-600 mt-1">
+                    ⚠️ Se alterar o e-mail, um código de verificação será enviado para o novo endereço.
+                </p>
+            </div>
+            <button type="submit" id="btnSalvarDados"
+                    class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:scale-[1.02] active:scale-95 transition duration-300 text-white py-3 rounded-xl font-bold shadow-lg text-sm">
+                Salvar Alterações
+            </button>
+            <div class="text-center mt-2">
+                <a href="/perfil" class="text-sm font-semibold text-slate-400 hover:text-slate-600 transition">Cancelar</a>
+            </div>
+        </form>
+
+        <!-- ── Passo 3: Verificar código do novo e-mail ───────── -->
+        <form id="passo-codigo" onsubmit="validarCodigo(event)" class="hidden space-y-4 text-center">
+            <p class="text-sm text-slate-600 mb-4">
+                Enviamos um código de 6 dígitos para o seu <strong>novo e-mail</strong>. Digite-o abaixo.
+            </p>
+            <input type="text" id="codigo_verificacao" placeholder="000000"
+                   maxlength="6" inputmode="numeric" autocomplete="one-time-code" required
+                   class="w-full text-center tracking-[0.5em] text-2xl px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-violet-500 font-bold text-slate-700">
+            <button type="submit" id="btnCodigo"
+                    class="w-full bg-emerald-500 hover:bg-emerald-600 transition duration-300 text-white py-3 rounded-xl font-bold shadow-lg text-sm">
+                Verificar e Concluir
+            </button>
+            <div class="text-center mt-2">
+                <a href="/perfil" class="text-sm font-semibold text-slate-400 hover:text-slate-600 transition">Cancelar</a>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+<script>
+    // ── Garante que mostrarToast existe mesmo fora do layout ──
+    if (typeof mostrarToast !== 'function') {
+        function mostrarToast(mensagem, tipo) {
+            const cores = { sucesso: '#16a34a', erro: '#dc2626', info: '#7c3aed' };
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position:fixed; bottom:24px; right:24px; z-index:9999;
+                background:${cores[tipo] || '#334155'};
+                color:#fff; padding:12px 20px; border-radius:12px;
+                font-size:14px; font-weight:600; box-shadow:0 4px 20px rgba(0,0,0,.2);
+                opacity:0; transition:opacity .3s;
+            `;
+            toast.innerText = mensagem;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.style.opacity = '1', 10);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 400);
+            }, 3500);
+        }
+    }
+
+    // ── Passo 1: confirmar identidade ─────────────────────────
+    function confirmarSenha(event) {
+        event.preventDefault();
+        const email = document.getElementById('email_confirmacao').value;
+        const senha = document.getElementById('senha_confirmacao').value;
+        const btn   = document.getElementById('btnSenha');
+
+        btn.innerText = 'Verificando…';
+        btn.disabled  = true;
+
+        fetch('/api/confirmar_senha_perfil', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ email, senha })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.ok) {
+                mostrarToast('Identidade confirmada!', 'sucesso');
+                document.getElementById('passo-senha').classList.add('hidden');
+                document.getElementById('passo-dados').classList.remove('hidden');
+                document.getElementById('subtitulo').innerText = 'Atualize as informações desejadas';
+            } else {
+                mostrarToast(data.mensagem || 'Erro ao confirmar.', 'erro');
+                btn.innerText = 'Confirmar Identidade';
+                btn.disabled  = false;
+            }
+        })
+        .catch(() => {
+            mostrarToast('Erro de conexão. Tente novamente.', 'erro');
+            btn.innerText = 'Confirmar Identidade';
+            btn.disabled  = false;
+        });
+    }
+
+    // ── Passo 2: solicitar alteração ──────────────────────────
+    function solicitarAlteracao(event) {
+        event.preventDefault();
+        const nome  = document.getElementById('novo_nome').value.trim();
+        const email = document.getElementById('novo_email').value.trim();
+        const btn   = document.getElementById('btnSalvarDados');
+
+        if (!nome || !email) {
+            mostrarToast('Preencha todos os campos.', 'erro');
+            return;
+        }
+
+        btn.innerText = 'Processando…';
+        btn.disabled  = true;
+
+        fetch('/api/solicitar_alteracao_dados', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ nome, email })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.ok) {
+                if (data.acao === 'nome_atualizado') {
+                    mostrarToast('Nome atualizado com sucesso!', 'sucesso');
+                    setTimeout(() => window.location.href = '/perfil', 1500);
+                } else if (data.acao === 'exigir_codigo') {
+                    mostrarToast(data.mensagem || 'Código enviado!', 'sucesso');
+                    document.getElementById('passo-dados').classList.add('hidden');
+                    document.getElementById('passo-codigo').classList.remove('hidden');
+                    document.getElementById('subtitulo').innerText = 'Verifique seu novo e-mail';
+                }
+            } else {
+                mostrarToast(data.mensagem || 'Erro ao salvar.', 'erro');
+                btn.innerText = 'Salvar Alterações';
+                btn.disabled  = false;
+            }
+        })
+        .catch(() => {
+            mostrarToast('Erro de conexão. Tente novamente.', 'erro');
+            btn.innerText = 'Salvar Alterações';
+            btn.disabled  = false;
+        });
+    }
+
+    // ── Passo 3: validar código do e-mail ─────────────────────
+    function validarCodigo(event) {
+        event.preventDefault();
+        const codigo = document.getElementById('codigo_verificacao').value.trim();
+        const btn    = document.getElementById('btnCodigo');
+
+        if (codigo.length !== 6) {
+            mostrarToast('O código deve ter 6 dígitos.', 'erro');
+            return;
+        }
+
+        btn.innerText = 'Verificando…';
+        btn.disabled  = true;
+
+        fetch('/api/validar_alteracao_dados', {
+            method:  'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body:    JSON.stringify({ codigo })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.ok) {
+                mostrarToast(data.mensagem || 'Dados atualizados!', 'sucesso');
+                setTimeout(() => window.location.href = '/perfil', 1500);
+            } else {
+                mostrarToast(data.mensagem || 'Código inválido.', 'erro');
+                btn.innerText = 'Verificar e Concluir';
+                btn.disabled  = false;
+            }
+        })
+        .catch(() => {
+            mostrarToast('Erro de conexão. Tente novamente.', 'erro');
+            btn.innerText = 'Verificar e Concluir';
+            btn.disabled  = false;
+        });
+    }
+</script>
+{% endblock %}
