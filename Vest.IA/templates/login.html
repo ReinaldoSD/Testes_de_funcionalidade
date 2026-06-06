@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Vest.IA</title>
 
+    <link rel="icon" href="/static/logo.png" type="image/png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -35,9 +37,9 @@
 
             <div class="text-center mb-6">
                 <img
-                    src="/static/logo.png"
+                    src="/static/logosemonome.png"
                     alt="Vest.IA"
-                    class="w-36 mx-auto drop-shadow-2xl brightness-110"
+                    class="w-45 mx-auto drop-shadow-2xl brightness-110"
                 >
 
                 <p class="text-blue-100 mt-2 text-sm">
@@ -45,7 +47,7 @@
                 </p>
             </div>
 
-            <form action="/login" method="POST" class="space-y-4">
+            <form id="formLogin" onsubmit="fazerLogin(event)" class="space-y-4">
 
                 <div>
                     <label class="block mb-1 text-xs text-blue-100 ml-1">
@@ -106,7 +108,84 @@
         </div>
 
     </div>
+    <script>
+        function fazerLogin(event) {
+            event.preventDefault(); // Impede o navegador de recarregar a página e ir pra tela branca
+            
+            const email = document.querySelector('input[name="email"]').value;
+            const senha = document.querySelector('input[name="senha"]').value;
+            const btn = document.querySelector('button[type="submit"]');
+            
+            btn.innerText = "Verificando...";
+            btn.disabled = true;
 
+            fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, senha })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.ok) {
+                    // Aqui podemos até colocar um toast de sucesso antes de redirecionar!
+                    mostrarToast("Login efetuado com sucesso! Entrando...", "sucesso");
+                    setTimeout(() => window.location.href = '/dashboard', 1000); 
+                } else {
+                    mostrarToast(data.mensagem, "erro"); // <-- A MÁGICA AQUI
+                    btn.innerText = "Entrar";
+                    btn.disabled = false;
+                }
+            })
+            .catch(erro => {
+                mostrarToast("Erro ao conectar com o servidor.", "erro"); // <-- E AQUI
+                btn.innerText = "Entrar";
+                btn.disabled = false;
+            });
+        }
+        function mostrarToast(mensagem, tipo = 'erro') {
+            // 1. Remove um toast anterior se o usuário clicar várias vezes rápido
+            const toastAntigo = document.getElementById('meu-toast');
+            if (toastAntigo) toastAntigo.remove();
+
+            // 2. Cria a "caixinha" do toast
+            const toast = document.createElement('div');
+            toast.id = 'meu-toast';
+                    
+            // 3. Define a cor e o ícone com base no tipo (erro ou sucesso)
+            const corFundo = tipo === 'sucesso' ? 'bg-green-500' : 'bg-red-500';
+            const icone = tipo === 'sucesso' ? '✅' : '⚠️';
+
+            // 4. Aplica as classes do Tailwind (flutuante no topo direito, cantos arredondados, sombra)
+            toast.className = `fixed top-5 right-5 md:top-10 md:right-10 ${corFundo} text-white px-6 py-4 rounded-2xl shadow-2xl transform transition-all duration-500 translate-x-20 opacity-0 z-50 flex items-center gap-3`;
+                    
+            toast.innerHTML = `<span class="text-xl">${icone}</span> <span class="font-medium text-sm md:text-base">${mensagem}</span>`;
+                    
+            document.body.appendChild(toast);
+
+            // 5. Faz a animação de entrada (deslizar para a esquerda e aparecer)
+            setTimeout(() => {
+                toast.classList.remove('translate-x-20', 'opacity-0');
+            }, 10);
+
+            // 6. Faz a animação de saída e remove o elemento após 3.5 segundos
+            setTimeout(() => {
+                toast.classList.add('translate-x-20', 'opacity-0');
+                setTimeout(() => toast.remove(), 500); // Aguarda a animação acabar para deletar do HTML
+            }, 3500);
+        }
+    </script>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    {% for category, message in messages %}
+                        // Dispara a sua função mostrarToast existente
+                        mostrarToast("{{ message }}", "erro");
+                    {% endfor %}
+                });
+            </script>
+        {% endif %}
+    {% endwith %}
 </body>
 
 </html>
