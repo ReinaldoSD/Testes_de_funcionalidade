@@ -2,28 +2,28 @@
 
 {% block content %}
 
-<h1 class="text-4xl font-bold text-dark mb-8">
+<h1 class="text-3xl md:text-4xl font-bold text-dark mb-6 md:mb-8 max-w-4xl w-full">
     ➕ Cadastrar Roupa
 </h1>
 
-<div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 max-w-4xl">
+<div class="bg-white p-4 md:p-8 rounded-2xl shadow-sm border border-slate-100 w-full max-w-4xl">
+    
+    <div class="mb-8 p-4 md:p-6 bg-blue-50 rounded-xl border border-dashed border-blue-300">
 
-    <div class="mb-8 p-6 bg-blue-50 rounded-xl border border-dashed border-blue-300">
-
-        <h2 class="text-2xl font-semibold mb-4">
+        <h2 class="text-xl md:text-2xl font-semibold mb-4">
             📸 Análise com IA
         </h2>
 
         <label class="flex flex-col items-center justify-center w-full h-40 border-2 border-blue-400 border-dashed rounded-xl cursor-pointer bg-white hover:bg-slate-50 transition">
 
-            <div class="text-center">
+            <div class="text-center px-4">
                 <p class="text-4xl mb-2">📷</p>
 
-                <p class="text-gray-600">
+                <p class="text-gray-600 text-sm md:text-base">
                     Clique para selecionar imagens
                 </p>
 
-                <p id="textoArquivo" class="text-sm text-gray-400 mt-2">
+                <p id="textoArquivo" class="text-xs md:text-sm text-gray-400 mt-2">
                     Nenhuma foto selecionada
                 </p>
             </div>
@@ -38,16 +38,17 @@
             >
         </label>
 
-        <button
-            onclick="cadastrarViaIA()"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold mt-5 transition"
-        >
-            ✨ Analisar Fotos
+        <button id="btnAnalisar" onclick="cadastrarViaIA()" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition flex justify-center items-center gap-2">
+            <span id="textoBtnIA">✨ Analisar com IA</span>
+            <svg id="spinnerIA" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
         </button>
 
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
 
         <div>
             <label class="block mb-2 font-medium text-gray-700">
@@ -125,25 +126,36 @@
 <script>
 
 function atualizarNomeArquivo(input) {
-
     const texto = document.getElementById('textoArquivo');
 
     if (input.files.length > 0) {
         texto.textContent = input.files.length + " imagem(ns) selecionada(s)";
+    } else {
+        texto.textContent = "Nenhuma foto selecionada";
     }
 }
 
 function cadastrarViaIA() {
-
     const input = document.getElementById('imagemInput');
 
+    // 1. Troca o alert nativo pelo Toast
     if (input.files.length === 0) {
-        alert("Selecione imagens primeiro.");
+        mostrarToast("Selecione imagens primeiro.", "erro");
         return;
     }
 
-    const formData = new FormData();
+    // Pega os elementos do botão
+    const btn = document.getElementById('btnAnalisar');
+    const spinner = document.getElementById('spinnerIA');
+    const textoBtn = document.getElementById('textoBtnIA');
 
+    // 2. BLOQUEIA O BOTÃO E MOSTRA O SPINNER
+    btn.disabled = true;
+    btn.classList.add('opacity-70', 'cursor-not-allowed');
+    spinner.classList.remove('hidden');
+    textoBtn.innerText = "Analisando com IA...";
+
+    const formData = new FormData();
     for (let i = 0; i < input.files.length; i++) {
         formData.append('imagem', input.files[i]);
     }
@@ -152,63 +164,94 @@ function cadastrarViaIA() {
         method: 'POST',
         body: formData
     })
-
-    .then(res => res.json())
-
+    .then(res => {
+        if (!res.ok) throw new Error("Erro na resposta do servidor");
+        return res.json();
+    })
     .then(data => {
-
+        // Preenche os inputs com a resposta da IA
         document.getElementById('nome').value = data.dados.nome;
         document.getElementById('tipo').value = data.dados.tipo;
         document.getElementById('cor').value = data.dados.cor;
         document.getElementById('ocasiao').value = data.dados.ocasiao;
-        document.getElementById('clima').value = data.dados.clima_ideal;
+        document.getElementById('clima').value = data.dados.clima;
 
         document.getElementById('caminhosFotosAcumulados').value =
             JSON.stringify(data.fotos_base64);
 
-        alert("IA analisou as imagens!");
+        // 3. Sucesso: Mostra o Toast
+        mostrarToast("IA analisou as imagens com sucesso!", "sucesso");
     })
-
-    .catch(() => {
-        alert("Erro ao analisar imagens.");
+    .catch((erro) => {
+        console.error(erro);
+        // 4. Erro: Mostra o Toast de erro
+        mostrarToast("Erro ao analisar imagens. Tente novamente.", "erro");
+    })
+    .finally(() => {
+        // 5. LIBERA O BOTÃO INDEPENDENTE DE DAR CERTO OU ERRADO
+        btn.disabled = false;
+        btn.classList.remove('opacity-70', 'cursor-not-allowed');
+        spinner.classList.add('hidden');
+        textoBtn.innerText = "✨ Analisar com IA";
     });
 }
 
 function finalizarCadastro() {
-
+    // 1. Pega os dados dos inputs
     const dados = {
-
         nome: document.getElementById('nome').value,
         tipo: document.getElementById('tipo').value,
         cor: document.getElementById('cor').value,
         ocasiao: document.getElementById('ocasiao').value,
         clima: document.getElementById('clima').value,
-
         fotos_base64: JSON.parse(
             document.getElementById('caminhosFotosAcumulados').value || "[]"
         )
     };
 
+    // Pequena validação para não salvar roupa sem nome
+    if (!dados.nome) {
+        mostrarToast("Por favor, preencha pelo menos o nome da roupa.", "erro");
+        return;
+    }
+
+    // 2. Envia para o backend
     fetch('/salvar_final', {
-
         method: 'POST',
-
         headers: {
             'Content-Type': 'application/json'
         },
-
         body: JSON.stringify(dados)
-
     })
-
     .then(res => res.json())
-
     .then(data => {
-        alert(data.mensagem);
-    })
+        // 3. Mostra o Toast de sucesso
+        mostrarToast("Roupa salva com sucesso no seu guarda-roupa! 👕", "sucesso");
 
-    .catch(() => {
-        alert("Erro ao salvar roupa.");
+        // 4. LIMPEZA DOS CAMPOS (Reset da tela)
+        document.getElementById('nome').value = '';
+        document.getElementById('tipo').value = '';
+        document.getElementById('cor').value = '';
+        document.getElementById('ocasiao').value = '';
+        document.getElementById('clima').value = '';
+        
+        // Limpa as fotos acumuladas ocultas
+        document.getElementById('caminhosFotosAcumulados').value = '[]';
+        
+        // Limpa o input de arquivo visual
+        const imagemInput = document.getElementById('imagemInput');
+        if (imagemInput) {
+            imagemInput.value = ''; // Zera o arquivo selecionado
+        }
+
+        const textoArquivo = document.getElementById('textoArquivo');
+        if (textoArquivo) {
+            textoArquivo.innerText = "Nenhuma foto selecionada"; // Volta o texto ao normal
+        }
+    })
+    .catch((erro) => {
+        console.error(erro);
+        mostrarToast("Erro ao salvar a roupa. Verifique sua conexão.", "erro");
     });
 }
 
