@@ -1,126 +1,167 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<title>Esqueci a Senha - Vest.IA</title>
-<script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Senha - Vest.IA</title>
+    <link rel="icon" href="/static/logo.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { poppins: ['Poppins', 'sans-serif'] } } } }
+    </script>
 </head>
 
-<body class="bg-[#0f0720] text-white flex items-center justify-center min-h-screen">
+<body class="font-poppins min-h-screen overflow-hidden relative bg-[#0f0720] flex items-center justify-center">
 
-<div class="bg-white/10 p-8 rounded-2xl w-[380px] space-y-4 border border-white/20">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute w-96 h-96 bg-purple-600 opacity-20 rounded-full blur-3xl top-[-100px] left-[-100px] animate-pulse"></div>
+        <div class="absolute w-96 h-96 bg-fuchsia-500 opacity-20 rounded-full blur-3xl bottom-[-100px] right-[-100px] animate-pulse"></div>
+    </div>
 
-<h1 class="text-2xl font-bold text-center">Recuperar Senha</h1>
+    <div class="relative z-10 bg-white/10 p-8 rounded-3xl shadow-[0_0_40px_rgba(139,92,246,0.1)] border border-white/20 w-11/12 max-w-md backdrop-blur-md">
+        
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-white tracking-tight mb-2">Recuperar Senha</h1>
+            <p class="text-blue-100/70 text-sm">Siga os passos para criar uma nova senha</p>
+        </div>
 
-<!-- ETAPA 1: EMAIL -->
-<div id="etapa1">
-    <label class="text-xs text-blue-200">E-mail</label>
+        <form id="formEmail" onsubmit="enviarCodigo(event)" class="space-y-4">
+            <div>
+                <label class="block mb-1 text-xs text-blue-100 ml-1">Seu E-mail Cadastrado</label>
+                <input type="email" id="email" placeholder="Digite seu e-mail" required
+                    class="w-full px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 placeholder-blue-100/30 text-white focus:outline-none focus:ring-2 focus:ring-fuchsia-400 text-sm">
+            </div>
+            <button type="submit" id="btnEmail"
+                class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:scale-[1.02] active:scale-95 transition duration-300 text-white py-3 rounded-xl font-semibold shadow-lg text-sm">
+                Enviar Código
+            </button>
+        </form>
 
-    <input id="email" type="email" placeholder="Digite seu e-mail"
-        class="w-full p-3 rounded bg-white/10 border border-white/20 text-white mt-1">
+        <form id="formCodigo" onsubmit="validarCodigo(event)" class="hidden space-y-4 text-center">
+            <p class="text-sm text-blue-100 mb-4">Enviamos um código para o seu e-mail!</p>
+            <input type="text" id="codigo" placeholder="000000" maxlength="6" required
+                class="w-full text-center tracking-[0.5em] text-2xl px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-fuchsia-400">
+            <button type="submit" id="btnCodigo"
+                class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:scale-[1.02] transition duration-300 text-white py-3 rounded-xl font-semibold shadow-lg text-sm">
+                Verificar Código
+            </button>
+        </form>
 
-    <button onclick="enviarCodigo()"
-        class="w-full mt-3 bg-violet-600 p-3 rounded font-semibold">
-        Enviar código
-    </button>
-</div>
+        <form id="formSenha" onsubmit="redefinirSenha(event)" class="hidden space-y-4">
+            <div>
+                <label class="block mb-1 text-xs text-blue-100 ml-1">Nova Senha</label>
+                <input type="password" id="novaSenha" placeholder="Digite a nova senha" required
+                    class="w-full px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 placeholder-blue-100/30 text-white focus:outline-none focus:ring-2 focus:ring-fuchsia-400 text-sm">
+            </div>
+            <button type="submit" id="btnSenha"
+                class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:scale-[1.02] transition duration-300 text-white py-3 rounded-xl font-semibold shadow-lg text-sm">
+                Salvar Nova Senha
+            </button>
+        </form>
 
-<!-- ETAPA 2: CÓDIGO -->
-<div id="etapa2" class="hidden">
-    <label class="text-xs text-blue-200">Código de 6 dígitos</label>
+        <div class="mt-6 text-center text-xs text-blue-100">
+            Lembrou da senha? <a href="/" class="font-semibold text-fuchsia-300 hover:text-fuchsia-200 transition">Voltar ao Login</a>
+        </div>
+    </div>
 
-    <input id="codigo" type="text" placeholder="Ex: 123456"
-        class="w-full p-3 rounded bg-white/10 border border-white/20 text-white mt-1">
+    <script>
+        let emailGlobal = "";
 
-    <button onclick="validarCodigo()"
-        class="w-full mt-3 bg-fuchsia-600 p-3 rounded font-semibold">
-        Validar código
-    </button>
-</div>
-
-<!-- ETAPA 3: NOVA SENHA -->
-<div id="etapa3" class="hidden">
-    <label class="text-xs text-blue-200">Nova senha</label>
-
-    <input id="senha" type="password" placeholder="Digite a nova senha"
-        class="w-full p-3 rounded bg-white/10 border border-white/20 text-white mt-1">
-
-    <button onclick="redefinirSenha()"
-        class="w-full mt-3 bg-green-600 p-3 rounded font-semibold">
-        Salvar senha
-    </button>
-</div>
-
-</div>
-
-<script>
-
-let emailGlobal = "";
-
-function enviarCodigo() {
-
-    emailGlobal = document.getElementById("email").value;
-
-    if (!emailGlobal) {
-        alert("Digite seu e-mail");
-        return;
-    }
-
-    fetch("/enviar_codigo", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({email: emailGlobal})
-    });
-
-    document.getElementById("etapa1").classList.add("hidden");
-    document.getElementById("etapa2").classList.remove("hidden");
-
-    alert("Código enviado para seu e-mail!");
-}
-
-function validarCodigo() {
-
-    const codigo = document.getElementById("codigo").value;
-
-    fetch("/validar_codigo", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            email: emailGlobal,
-            codigo: codigo
-        })
-    })
-    .then(r => r.json())
-    .then(data => {
-
-        if (data.ok) {
-            document.getElementById("etapa2").classList.add("hidden");
-            document.getElementById("etapa3").classList.remove("hidden");
-        } else {
-            alert(data.mensagem || "Código inválido");
+        // FUNÇÃO TOAST MÁGICA
+        function mostrarToast(mensagem, tipo = 'erro') {
+            const toastAntigo = document.getElementById('meu-toast');
+            if (toastAntigo) toastAntigo.remove();
+            const toast = document.createElement('div');
+            toast.id = 'meu-toast';
+            const corFundo = tipo === 'sucesso' ? 'bg-green-500' : 'bg-red-500';
+            const icone = tipo === 'sucesso' ? '✅' : '⚠️';
+            toast.className = `fixed top-5 right-5 md:top-10 md:right-10 ${corFundo} text-white px-6 py-4 rounded-2xl shadow-2xl transform transition-all duration-500 translate-x-20 opacity-0 z-50 flex items-center gap-3`;
+            toast.innerHTML = `<span class="text-xl">${icone}</span> <span class="font-medium text-sm md:text-base">${mensagem}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.classList.remove('translate-x-20', 'opacity-0'), 10);
+            setTimeout(() => {
+                toast.classList.add('translate-x-20', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            }, 3500);
         }
-    });
-}
 
-function redefinirSenha() {
+        // PASSO 1: ENVIAR EMAIL
+        function enviarCodigo(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnEmail');
+            emailGlobal = document.getElementById('email').value;
 
-    const senha = document.getElementById("senha").value;
+            btn.innerText = "Enviando..."; btn.disabled = true;
 
-    fetch("/redefinir_senha", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({senha: senha})
-    })
-    .then(r => r.json())
-    .then(data => {
+            fetch('/enviar_codigo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: emailGlobal })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.ok) {
+                    mostrarToast("Código enviado para o e-mail!", "sucesso");
+                    document.getElementById('formEmail').classList.add('hidden');
+                    document.getElementById('formCodigo').classList.remove('hidden');
+                } else {
+                    mostrarToast(data.mensagem, "erro");
+                    btn.innerText = "Enviar Código"; btn.disabled = false;
+                }
+            }).catch(() => { mostrarToast("Erro de conexão.", "erro"); btn.innerText = "Enviar Código"; btn.disabled = false; });
+        }
 
-        alert(data.mensagem || "Senha atualizada!");
+        // PASSO 2: VALIDAR CÓDIGO
+        function validarCodigo(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnCodigo');
+            const codigo = document.getElementById('codigo').value;
 
-        window.location.href = "/";
-    });
-}
+            btn.innerText = "Verificando..."; btn.disabled = true;
 
-</script>
+            fetch('/validar_codigo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ codigo })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.ok) {
+                    mostrarToast("Código correto!", "sucesso");
+                    document.getElementById('formCodigo').classList.add('hidden');
+                    document.getElementById('formSenha').classList.remove('hidden');
+                } else {
+                    mostrarToast(data.mensagem, "erro");
+                    btn.innerText = "Verificar Código"; btn.disabled = false;
+                }
+            }).catch(() => { mostrarToast("Erro de conexão.", "erro"); btn.innerText = "Verificar Código"; btn.disabled = false; });
+        }
 
+        // PASSO 3: REDEFINIR SENHA
+        function redefinirSenha(event) {
+            event.preventDefault();
+            const btn = document.getElementById('btnSenha');
+            const senha = document.getElementById('novaSenha').value;
+
+            btn.innerText = "Salvando..."; btn.disabled = true;
+
+            fetch('/redefinir_senha', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ senha })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.ok) {
+                    mostrarToast("Senha alterada com sucesso! Redirecionando...", "sucesso");
+                    setTimeout(() => window.location.href = '/', 2000);
+                } else {
+                    mostrarToast(data.mensagem, "erro");
+                    btn.innerText = "Salvar Nova Senha"; btn.disabled = false;
+                }
+            }).catch(() => { mostrarToast("Erro de conexão.", "erro"); btn.innerText = "Salvar Nova Senha"; btn.disabled = false; });
+        }
+    </script>
 </body>
 </html>
