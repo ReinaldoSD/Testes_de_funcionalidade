@@ -2,158 +2,184 @@
 
 {% block content %}
 
-<div class="mb-10">
-
-    <h1 class="text-4xl font-bold text-slate-800">
-        👋 Bem-vindo ao Vest.IA
-    </h1>
-
-    <p class="text-slate-500 mt-2 text-lg">
-        Seu guarda-roupa inteligente com IA
-    </p>
-
-</div>
-
-<!-- CARDS SUPERIORES -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-
-    <div class="bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white p-6 rounded-3xl shadow-xl">
-        <p class="text-sm opacity-80">
-            Total de Peças
+<div class="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+        <h1 class="text-4xl font-bold text-slate-800">
+            👋 Bem-vindo ao Vest.IA
+        </h1>
+        <p class="text-slate-500 mt-2 text-lg">
+            Seu guarda-roupa inteligente com IA
         </p>
-
-        <h2 id="totalRoupas" class="text-4xl font-bold mt-2">
-            0
-        </h2>
     </div>
-
-    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-        <p class="text-slate-500 text-sm">
-            Mais usada
-        </p>
-
-        <h2 id="maisUsada" class="text-2xl font-bold text-slate-800 mt-2">
-            ---
-        </h2>
-    </div>
-
-    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
-        <p class="text-slate-500 text-sm">
-            Menos usada
-        </p>
-
-        <h2 id="menosUsada" class="text-2xl font-bold text-slate-800 mt-2">
-            ---
-        </h2>
-    </div>
-
-</div>
-
-<!-- SUGESTÃO IA -->
-<div class="bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-3xl p-8 text-white shadow-xl mb-10">
-
-    <div class="flex items-center justify-between">
-
+    
+    <div id="statusClima" class="hidden items-center gap-3 bg-white px-5 py-3 rounded-2xl border border-slate-100 shadow-sm">
+        <span class="text-3xl" id="iconeClima">☀️</span>
         <div>
+            <p class="text-xs text-slate-400 font-bold uppercase tracking-wider">Clima Hoje</p>
+            <p class="text-sm font-bold text-slate-800" id="textoClima">Carregando...</p>
+        </div>
+    </div>
+</div>
 
-            <h2 class="text-3xl font-bold mb-3">
-                ✨ Sugestão da IA
-            </h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+    <div class="bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white p-6 rounded-3xl shadow-xl">
+        <p class="text-sm opacity-80">Total de Peças</p>
+        <h2 id="totalRoupas" class="text-4xl font-bold mt-2">0</h2>
+    </div>
 
-            <p id="sugestaoIA" class="text-lg text-violet-100">
-                Carregando sugestão...
-            </p>
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+        <p class="text-slate-500 text-sm">Mais usada</p>
+        <h2 id="maisUsada" class="text-2xl font-bold text-slate-800 mt-2">---</h2>
+    </div>
 
+    <div class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm">
+        <p class="text-slate-500 text-sm">Menos usada</p>
+        <h2 id="menosUsada" class="text-2xl font-bold text-slate-800 mt-2">---</h2>
+    </div>
+</div>
+
+<div class="bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-3xl p-8 text-white shadow-xl mb-10">
+    
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-3xl font-bold">✨ Sugestões Diárias Personalizadas</h2>
+        <span id="badgeFallback" class="hidden text-xs bg-white/20 text-white font-bold px-3 py-1 rounded-full">
+            Modo Offline / Padrão
+        </span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <div id="card-calor" class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/20">
+            <div class="flex justify-between items-center mb-4 border-b border-white/20 pb-2">
+                <h3 class="font-bold text-lg">☀️ Look de Calor</h3>
+                <span class="badge-recomendado hidden bg-amber-400 text-amber-900 text-[10px] font-bold px-2 py-1 rounded">RECOMENDADO</span>
+            </div>
+            <div id="lookCalor" class="space-y-3"></div>
+        </div>
+
+        <div id="card-frio" class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/20">
+            <div class="flex justify-between items-center mb-4 border-b border-white/20 pb-2">
+                <h3 class="font-bold text-lg">❄️ Look de Frio</h3>
+                <span class="badge-recomendado hidden bg-amber-400 text-amber-900 text-[10px] font-bold px-2 py-1 rounded">RECOMENDADO</span>
+            </div>
+            <div id="lookFrio" class="space-y-3"></div>
+        </div>
+
+        <div id="card-meia_estacao" class="bg-white/10 backdrop-blur-md p-5 rounded-2xl border border-white/20">
+            <div class="flex justify-between items-center mb-4 border-b border-white/20 pb-2">
+                <h3 class="font-bold text-lg">🍁 Meia Estação</h3>
+                <span class="badge-recomendado hidden bg-amber-400 text-amber-900 text-[10px] font-bold px-2 py-1 rounded">RECOMENDADO</span>
+            </div>
+            <div id="lookMeiaEstacao" class="space-y-3"></div>
         </div>
 
     </div>
 
 </div>
 
-<!-- AÇÕES -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-    <a href="/cadastrar"
-       class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition group">
-
-        <div class="text-5xl mb-4">
-            ➕
-        </div>
-
-        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-violet-600 transition">
-            Cadastrar Roupa
-        </h2>
-
-        <p class="text-slate-500 mt-3">
-            Adicione novas peças ao sistema.
-        </p>
-
+    <a href="/cadastrar" class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition group">
+        <div class="text-5xl mb-4">➕</div>
+        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-violet-600 transition">Cadastrar Roupa</h2>
+        <p class="text-slate-500 mt-3">Adicione novas peças ao sistema.</p>
     </a>
 
-    <a href="/roupas"
-       class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition group">
-
-        <div class="text-5xl mb-4">
-            👕
-        </div>
-
-        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-violet-600 transition">
-            Meu Guarda-Roupa
-        </h2>
-
-        <p class="text-slate-500 mt-3">
-            Veja todas as peças cadastradas.
-        </p>
-
+    <a href="/minhas_roupas" class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition group">
+        <div class="text-5xl mb-4">👕</div>
+        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-violet-600 transition">Meu Guarda-Roupa</h2>
+        <p class="text-slate-500 mt-3">Veja todas as peças cadastradas.</p>
     </a>
 
-    <a href="/historico_page"
-       class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition group">
-
-        <div class="text-5xl mb-4">
-            📅
-        </div>
-
-        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-violet-600 transition">
-            Histórico
-        </h2>
-
-        <p class="text-slate-500 mt-3">
-            Veja as roupas usadas recentemente.
-        </p>
-
+    <a href="/historico_page" class="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl transition group">
+        <div class="text-5xl mb-4">📅</div>
+        <h2 class="text-2xl font-bold text-slate-800 group-hover:text-violet-600 transition">Histórico</h2>
+        <p class="text-slate-500 mt-3">Veja as roupas usadas recentemente.</p>
     </a>
-
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    carregarDashboard();
+    carregarSugestoesDiarias();
+});
 
 async function carregarDashboard() {
-
     const res = await fetch('/listar');
     const roupas = await res.json();
-
     document.getElementById('totalRoupas').textContent = roupas.length;
 
-    if (roupas.length === 0) {
+    if (roupas.length === 0) return;
+
+    // Lógica Original do seu código
+    const ordenadas = [...roupas].sort((a, b) => b.vezes_usada - a.vezes_usada);
+    document.getElementById('maisUsada').textContent = ordenadas[0]?.nome || "---";
+    document.getElementById('menosUsada').textContent = ordenadas[ordenadas.length - 1]?.nome || "---";
+}
+
+async function carregarSugestoesDiarias() {
+    try {
+        const res = await fetch('/api/sugestoes_combinacoes');
+        const dados = await res.json();
+
+        // Renderiza os 3 blocos
+        renderizarLookResumido(dados.looks.calor, 'lookCalor');
+        renderizarLookResumido(dados.looks.frio, 'lookFrio');
+        renderizarLookResumido(dados.looks.meia_estacao, 'lookMeiaEstacao');
+
+        // Lida com API do Clima
+        if (dados.fallback_ativo || !dados.clima_atual) {
+            document.getElementById('badgeFallback').classList.remove('hidden');
+        } else {
+            const painelClima = document.getElementById('statusClima');
+            painelClima.classList.remove('hidden');
+            painelClima.classList.add('flex');
+            
+            document.getElementById('textoClima').textContent = `${dados.temperatura}°C`;
+            
+            const icones = { "calor": "☀️", "frio": "❄️", "meia_estacao": "🍁" };
+            document.getElementById('iconeClima').textContent = icones[dados.clima_atual];
+
+            // Pinta a borda da caixa sugerida
+            const cardRecomendado = document.getElementById(`card-${dados.clima_atual}`);
+            if (cardRecomendado) {
+                cardRecomendado.classList.remove('bg-white/10', 'border-white/20');
+                cardRecomendado.classList.add('bg-white', 'text-slate-900', 'shadow-2xl', 'scale-105');
+                cardRecomendado.querySelector('.badge-recomendado').classList.remove('hidden');
+                
+                // Ajusta o texto da caixa branca para ficar visível (pois o fundo mudou)
+                cardRecomendado.querySelectorAll('p').forEach(p => p.classList.add('text-slate-500'));
+                cardRecomendado.querySelectorAll('h3').forEach(h => h.classList.add('text-slate-800'));
+            }
+        }
+    } catch (error) {
+        console.error("Erro ao carregar sugestões:", error);
+    }
+}
+
+function renderizarLookResumido(pecas, elementId) {
+    const container = document.getElementById(elementId);
+    if (!pecas || pecas.length === 0) {
+        container.innerHTML = `<p class="text-sm opacity-70 italic text-center py-4">Sem peças suficientes.</p>`;
         return;
     }
 
-    const ordenadas = [...roupas].sort(
-        (a, b) => b.vezes_usada - a.vezes_usada
-    );
+    container.innerHTML = '';
+    pecas.forEach(peca => {
+        let imgSrc = peca.foto;
+        if (!imgSrc || imgSrc === 'None') imgSrc = '/static/placeholder-roupa.png';
+        if (imgSrc && !imgSrc.startsWith('/') && !imgSrc.startsWith('http')) imgSrc = '/' + imgSrc;
 
-    document.getElementById('maisUsada').textContent =
-        ordenadas[0]?.nome || "---";
-
-    document.getElementById('menosUsada').textContent =
-        ordenadas[ordenadas.length - 1]?.nome || "---";
-
-    document.getElementById('sugestaoIA').textContent = "";
+        container.innerHTML += `
+            <div class="flex items-center gap-3 bg-black/10 p-2 rounded-xl">
+                <img src="${imgSrc}" class="w-10 h-10 object-cover rounded-lg bg-white/20" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3159/3159614.png'">
+                <div class="min-w-0 flex-1">
+                    <p class="text-xs font-bold truncate">${peca.nome}</p>
+                    <p class="text-[10px] opacity-70 capitalize">${peca.tipo}</p>
+                </div>
+            </div>
+        `;
+    });
 }
-
-window.onload = carregarDashboard;
-
 </script>
 
 {% endblock %}
