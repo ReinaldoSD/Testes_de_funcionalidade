@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vest.IA</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+    <link class="rounded-full" rel="icon" href="/static/logo.png" type="image/png">
+    
     <script>
         tailwind.config = {
             theme: {
@@ -25,58 +23,210 @@
             }
         }
     </script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="/modulos/responsividade.js" defer></script>
+
+    <style>
+        /* Esconde a barra de rolagem visualmente, mas mantém a rolagem ativa por toque/mouse */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE e Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
 </head>
 
-<body class="bg-light font-poppins">
+<body class="bg-light font-poppins relative min-h-screen overflow-x-hidden text-lg">
 
-    <div class="flex min-h-screen">
+    <header class="md:hidden bg-[#140a28] text-white p-4 flex justify-between items-center sticky top-0 z-40 shadow-md">
+        <div class="flex items-center gap-3">
+            <img src="/static/logosemonome.png" alt="Vest.IA" class="h-10 object-contain">
+            <span class="font-bold text-2xl tracking-wide text-fuchsia-300">Vest.IA</span>
+        </div>
+        <button id="menuBtn" aria-label="Abrir menu" class="focus:outline-none hover:text-fuchsia-400 transition p-1">
+            <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+            </svg>
+        </button>
+    </header>
 
-        <!-- SIDEBAR -->
-        <aside class="w-64 bg-[#140a28] text-white p-6 fixed h-full border-r border-white/10 shadow-2xl backdrop-blur-xl">
+    <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 z-40 hidden backdrop-blur-sm transition-opacity duration-300 opacity-0"></div>
 
-            <div class="flex items-center gap-3 mb-10 px-2">
-    <img src="/static/logosemonome.png" alt="Vest.IA" class="w-10 h-10 object-contain">
-    
-    <h1 class="text-2xl font-bold text-white">
-        Vest.IA
-    </h1>
-</div>
-
-            <nav class="space-y-3">
-
-                <a href="/dashboard"
-                   class="block py-3 px-4 rounded-xl hover:bg-blue-600 transition">
-                    🏠 Dashboard
-                </a>
-
-                <a href="/cadastrar"
-                   class="block py-3 px-4 rounded-xl hover:bg-blue-600 transition">
-                    ➕ Cadastrar
-                </a>
-
-                <a href="/roupas"
-                   class="block py-3 px-4 rounded-xl hover:bg-blue-600 transition">
-                    👕 Minhas Roupas
-                </a>
-
-                <a href="/historico_page"
-                   class="block py-3 px-4 rounded-xl hover:bg-blue-600 transition">
-                    📅 Histórico
-                </a>
-
+    <aside id="sidebar" class="w-72 bg-[#140a28] text-white p-6 pb-20 fixed inset-y-0 left-0 overflow-y-auto no-scrollbar border-r border-white/10 shadow-2xl flex flex-col justify-between z-50 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+        <div>
+            <div class="flex items-center justify-between gap-3 mb-8 px-2">
+                <img src="/static/logosemonome.png" alt="Vest.IA" class="w-36 object-contain hidden md:block">
+                <span class="font-bold text-2xl tracking-wide text-fuchsia-300 md:hidden">Vest.IA</span>
+                
+                <button id="closeBtn" aria-label="Fechar menu" class="md:hidden text-gray-400 hover:text-white transition p-1">
+                    <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="/dashboard" class="block py-3.5 px-5 text-lg font-medium rounded-xl hover:bg-violet-600 transition">🏠 Dashboard</a>
+                <a href="/cadastrar" class="block py-3.5 px-5 text-lg font-medium rounded-xl hover:bg-violet-600 transition">➕ Cadastrar Roupa</a>
+                <a href="/minhas_roupas" class="block py-3.5 px-5 text-lg font-medium rounded-xl hover:bg-violet-600 transition">👕 Minhas Roupas</a>
+                <a href="/sugestoes" class="block py-3.5 px-5 text-lg font-medium rounded-xl hover:bg-violet-600 transition">💡 Sugestões</a>
+                <a href="/historico_page" class="block py-3.5 px-5 text-lg font-medium rounded-xl hover:bg-violet-600 transition">📅 Histórico</a>
+                <a href="/perfil" class="block py-3.5 px-5 text-lg font-medium rounded-xl hover:bg-violet-600 transition">👤 Meu Perfil</a>
             </nav>
+        </div>
 
-        </aside>
+        <div class="pt-6 border-t border-white/10 mt-6">
+            <a href="/logout" onclick="event.preventDefault(); confirmarSaida(this.href)" class="flex items-center justify-center gap-3 py-3.5 px-5 text-lg rounded-xl bg-red-500/10 hover:bg-red-600 text-red-400 hover:text-white font-semibold transition border border-red-500/20 shadow-sm">
+                🚪 Sair da Conta
+            </a>
+        </div>
+    </aside>
 
-        <!-- CONTEÚDO -->
-        <main class="ml-64 flex-1 p-8">
+    <main class="md:ml-72 p-4 sm:p-8 lg:p-12 w-full md:w-[calc(100%-18rem)] overflow-x-hidden min-h-[calc(100vh-72px)] md:min-h-screen">
+        {% block content %}
+        {% endblock %}
+    </main>
 
-            {% block content %}
-            {% endblock %}
-
-        </main>
-
+    <div id="confirmModal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4 text-base">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 transform transition-all scale-95 opacity-0" id="modalCard">
+            <div class="text-center">
+                <div id="modalIconContainer" class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-violet-100 text-violet-600 mb-6">
+                    <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-900" id="modalTitle">Confirmar Ação</h3>
+                <p class="text-lg text-gray-500 mt-3" id="modalMessage">Você tem certeza que deseja prosseguir?</p>
+            </div>
+            <div class="mt-8 flex gap-4">
+                <button id="cancelBtn" class="flex-1 px-5 py-3.5 text-lg bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition">
+                    Cancelar
+                </button>
+                <button id="confirmBtn" class="flex-1 px-5 py-3.5 text-lg bg-violet-600 text-white font-semibold rounded-xl transition shadow-lg">
+                    Confirmar
+                </button>
+            </div>
+        </div>
     </div>
 
+    <script>
+        // --- LÓGICA DO MENU LATERAL (MOBILE) ---
+        const menuBtn = document.getElementById('menuBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+
+        function toggleMenu() {
+            const isOpen = !sidebar.classList.contains('-translate-x-full');
+            if (isOpen) {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+                document.body.style.overflow = 'auto';
+            } else {
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+                sidebar.classList.remove('-translate-x-full');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        if (menuBtn && closeBtn && overlay) {
+            menuBtn.addEventListener('click', toggleMenu);
+            closeBtn.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+        }
+
+        // --- SISTEMA DE TOAST RESPONSIVO ---
+        function mostrarToast(mensagem, tipo = 'sucesso') {
+            const toastAntigo = document.getElementById('meu-toast');
+            if (toastAntigo) toastAntigo.remove();
+
+            const toast = document.createElement('div');
+            toast.id = 'meu-toast';
+            
+            const corFundo = tipo === 'sucesso' ? 'bg-green-600' : 'bg-red-600';
+            const icone = tipo === 'sucesso' ? '✨' : '⚠️';
+
+            toast.className = `fixed bottom-5 left-5 right-5 md:bottom-auto md:top-10 md:left-auto md:right-10 md:w-fit md:min-w-0 md:max-w-lg ${corFundo} text-white px-5 py-3.5 rounded-xl shadow-xl transform transition-all duration-500 translate-y-20 md:translate-y-0 md:translate-x-20 opacity-0 z-[60] flex items-center gap-4`;
+            
+            toast.innerHTML = `<span class="text-3xl">${icone}</span> <span class="text-base md:text-lg font-medium" id="toast-message"></span>`;
+            
+            document.body.appendChild(toast);
+            document.getElementById('toast-message').textContent = mensagem;
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-20', 'md:translate-x-20', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            }, 3500);
+        }
+
+        // --- SISTEMA DE CONFIRMAÇÃO PERSONALIZADO (GLOBAL) ---
+        function perguntar(titulo, mensagem, acaoPerigosa = false) {
+            const modal = document.getElementById('confirmModal');
+            const card = document.getElementById('modalCard');
+            const titleEl = document.getElementById('modalTitle');
+            const msgEl = document.getElementById('modalMessage');
+            const confirmBtn = document.getElementById('confirmBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const iconContainer = document.getElementById('modalIconContainer');
+
+            titleEl.textContent = titulo;
+            msgEl.textContent = mensagem;
+
+            if (acaoPerigosa) {
+                confirmBtn.className = "flex-1 px-5 py-3.5 text-lg bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition shadow-lg shadow-red-200";
+                iconContainer.className = "mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 text-red-600 mb-6";
+            } else {
+                confirmBtn.className = "flex-1 px-5 py-3.5 text-lg bg-violet-600 hover:bg-violet-700 text-white font-semibold rounded-xl transition shadow-lg shadow-violet-200";
+                iconContainer.className = "mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-violet-100 text-violet-600 mb-6";
+            }
+
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                card.classList.remove('scale-95', 'opacity-0');
+                card.classList.add('scale-100', 'opacity-100');
+            }, 10);
+
+            return new Promise((resolve) => {
+                const fechar = (resultado) => {
+                    card.classList.add('scale-95', 'opacity-0');
+                    setTimeout(() => {
+                        modal.classList.add('hidden');
+                        resolve(resultado);
+                    }, 200);
+                };
+
+                confirmBtn.onclick = () => fechar(true);
+                cancelBtn.onclick = () => fechar(false);
+                modal.onclick = (e) => { if(e.target === modal.children[0]) fechar(false); };
+            });
+        }
+
+        async function confirmarSaida(url) {
+            const certeza = await perguntar("Sair da Conta", "Tem certeza que deseja encerrar sua sessão no Vest.IA?");
+            if (certeza) window.location.href = url;
+        }
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    setTimeout(() => {
+                        mostrarToast({{ message|tojson|safe }}, {{ category|tojson|safe }});
+                    }, 100); 
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </script>
 </body>
 </html>
