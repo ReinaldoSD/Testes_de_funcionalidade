@@ -2,7 +2,7 @@
 
 <img src="static/logo2.png" alt="Vest.IA Logo" width="180"/>
 
-# Vest.IA — Intelligent Closet
+# Vest.IA — Seu Guarda-Roupa Digital
 
 **Guarda-roupa digital com inteligência artificial**
 
