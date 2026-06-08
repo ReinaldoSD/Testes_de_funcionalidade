@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="Vest.IA/static/logo2.png" alt="Vest.IA Logo" width="180"/>
+<img src="static/logo2.png" alt="Vest.IA Logo" width="180"/>
 
 # Vest.IA — Intelligent Closet
 
@@ -16,7 +16,7 @@
 
 ## 📋 Índice
 
-## 📋 Índice
+
 
 - [Sobre o Projeto](#sobre-o-projeto)
 - [Funcionalidades](#funcionalidades)
