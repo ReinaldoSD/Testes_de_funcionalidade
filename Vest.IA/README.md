@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="Vest.IA/static/logo.png" alt="Vest.IA Logo" width="180"/>
+<img src="Vest.IA/static/logo2.png" alt="Vest.IA Logo" width="180"/>
 
 # Vest.IA — Intelligent Closet
 
