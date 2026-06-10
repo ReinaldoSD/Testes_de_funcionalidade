@@ -82,13 +82,14 @@ O sistema funciona como um **guarda-roupa digital inteligente**. O usuário foto
 
 O sistema segue o padrão **MVC (Model-View-Controller)** sobre o framework Flask:
 
-```
+
+```text
 Navegador  ──►  routes.py (Controller)  ──►  banco_dados/ (Model)
                       │                            │
-                      ├──►  modulos/  (IA)          └──►  vest.ia.db
-                      ├──►  utils/   (apoio)
-                      └──►  templates/ (View)
-```
+                      ├──►  modulos/  (IA)         ├──► create_db.py (Setup)
+                      ├──►  utils/   (apoio)       ├──► database.py  (CRUD)
+                      └──►  templates/ (View)      └──► vest.ia.db   (SQLite)
+
 
 - **Model** → `banco_dados/database.py` gerencia todas as operações no SQLite
 - **View** → `templates/` com páginas HTML renderizadas pelo Jinja2
