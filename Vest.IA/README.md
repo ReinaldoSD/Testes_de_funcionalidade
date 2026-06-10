@@ -89,7 +89,7 @@ Navegador  ──►  routes.py (Controller)  ──►  banco_dados/ (Model)
                       ├──►  modulos/  (IA)         ├──► create_db.py (Setup)
                       ├──►  utils/   (apoio)       ├──► database.py  (CRUD)
                       └──►  templates/ (View)      └──► vest.ia.db   (SQLite)
-
+```
 
 - **Model** → `banco_dados/database.py` gerencia todas as operações no SQLite
 - **View** → `templates/` com páginas HTML renderizadas pelo Jinja2
