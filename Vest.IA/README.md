@@ -30,6 +30,7 @@
 - [Equipe](#equipe)
 ---
 
+<a id="sobre-o-projeto"></a>
 ## 🧠 Sobre o Projeto
 
 O **Vest.IA** resolve um problema cotidiano: pessoas com muitas roupas que perdem tempo escolhendo o que vestir, esquecem peças que possuem e raramente consideram o clima do dia.
@@ -37,7 +38,7 @@ O **Vest.IA** resolve um problema cotidiano: pessoas com muitas roupas que perde
 O sistema funciona como um **guarda-roupa digital inteligente**. O usuário fotografa suas peças e a IA identifica automaticamente o tipo, a cor, a ocasião e o clima ideal de cada uma. A partir daí, o sistema sugere combinações de looks prontos levando em conta o **clima em tempo real** e o **contexto descrito pelo usuário**.
 
 ---
-
+<a id="funcionalidades"></a>
 ## ✨ Funcionalidades
 
 ### 👗 Guarda-Roupa Digital
@@ -77,7 +78,7 @@ O sistema funciona como um **guarda-roupa digital inteligente**. O usuário foto
 - Chaves de API em variáveis de ambiente, nunca no código
 
 ---
-
+<a id="arquitetura"></a>
 ## 🏗️ Arquitetura
 
 O sistema segue o padrão **MVC (Model-View-Controller)** sobre o framework Flask:
@@ -96,7 +97,7 @@ Navegador  ──►  routes.py (Controller)  ──►  banco_dados/ (Model)
 - **Controller** → `routes.py` centraliza todas as rotas e endpoints da API REST
 
 ---
-
+<a id="tecnologias"></a>
 ## 🛠️ Tecnologias
 
 | Camada | Tecnologia | Função |
@@ -112,7 +113,7 @@ Navegador  ──►  routes.py (Controller)  ──►  banco_dados/ (Model)
 | Imagens | Pillow (PIL) | Conversão e salvamento de fotos |
 
 ---
-
+<a id="banco-de-dados"></a>
 ## 🗄️ Banco de Dados
 
 Quatro tabelas relacionais no arquivo `banco_dados/vest.ia.db`:
@@ -135,7 +136,7 @@ data_cadastro     ocasiao
 > A exclusão de uma peça remove automaticamente seus registros em cascata e os arquivos físicos do servidor.
 
 ---
-
+<a id="modulos-de-ia"></a>
 ## 🤖 Módulos de IA
 
 ### `modulos/ia_classificador.py`
@@ -163,6 +164,7 @@ Motor de recomendação baseado em **pontuação heurística** — rápido e det
 
 ---
 
+<a id="como-executar"></a>
 ## 🚀 Como Executar
 
 ### Pré-requisitos
@@ -205,6 +207,7 @@ Acesse em: **http://localhost:7860**
 
 ---
 
+<a id="variaveis-de-ambiente"></a>
 ## ⚙️ Variáveis de Ambiente
 
 Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo:
@@ -221,6 +224,7 @@ BREVO_API_KEY=sua_chave_da_api_brevo
 
 ---
 
+<a id="estrutura-de-arquivos"></a>
 ## 📁 Estrutura de Arquivos
 
 ```
@@ -271,6 +275,7 @@ vest-ia/
 
 ---
 
+<a id="equipe"></a>
 ## 👥 Equipe
 
 Projeto desenvolvido pelo **Grupo 2** da disciplina de **PIEC 1** — Engenharia da Computação, UABJ/UFRPE.
